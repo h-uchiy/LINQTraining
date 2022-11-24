@@ -1,0 +1,9 @@
+bin/
+obj/
+.dotnet/
+.nuget/
+.packages/
+.tools/
+.vs/
+Migrations/
+*.user
