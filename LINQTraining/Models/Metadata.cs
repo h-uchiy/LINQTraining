@@ -1,5 +1,6 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+#nullable disable
 
 namespace LINQTraining.Models
 {
@@ -9,111 +10,113 @@ namespace LINQTraining.Models
         public string Code { get; set; }
         public string Name { get; set; }
         public DataType DataType { get; set; }
-        public ICollection<MetadataDataCategory> MetadataDataCategories { get; set; }
-        public ICollection<DataValue> DataValues { get; set; }
+        public string CandidateList { get; set; }
+        public int ColumnIndex { get; set; }
+        public virtual ICollection<MetadataDataCategory> MetadataDataCategories { get; set; }
+        public virtual ICollection<DataValue> DataValues { get; set; }
 
-        #region Blah
+        #region Column
 
-        public string Blah000 { get; set; }
-        public string Blah001 { get; set; }
-        public string Blah002 { get; set; }
-        public string Blah003 { get; set; }
-        public string Blah004 { get; set; }
-        public string Blah005 { get; set; }
-        public string Blah006 { get; set; }
-        public string Blah007 { get; set; }
-        public string Blah008 { get; set; }
-        public string Blah009 { get; set; }
-        public string Blah010 { get; set; }
-        public string Blah011 { get; set; }
-        public string Blah012 { get; set; }
-        public string Blah013 { get; set; }
-        public string Blah014 { get; set; }
-        public string Blah015 { get; set; }
-        public string Blah016 { get; set; }
-        public string Blah017 { get; set; }
-        public string Blah018 { get; set; }
-        public string Blah019 { get; set; }
-        public string Blah020 { get; set; }
-        public string Blah021 { get; set; }
-        public string Blah022 { get; set; }
-        public string Blah023 { get; set; }
-        public string Blah024 { get; set; }
-        public string Blah025 { get; set; }
-        public string Blah026 { get; set; }
-        public string Blah027 { get; set; }
-        public string Blah028 { get; set; }
-        public string Blah029 { get; set; }
-        public string Blah030 { get; set; }
-        public string Blah031 { get; set; }
-        public string Blah032 { get; set; }
-        public string Blah033 { get; set; }
-        public string Blah034 { get; set; }
-        public string Blah035 { get; set; }
-        public string Blah036 { get; set; }
-        public string Blah037 { get; set; }
-        public string Blah038 { get; set; }
-        public string Blah039 { get; set; }
-        public string Blah040 { get; set; }
-        public string Blah041 { get; set; }
-        public string Blah042 { get; set; }
-        public string Blah043 { get; set; }
-        public string Blah044 { get; set; }
-        public string Blah045 { get; set; }
-        public string Blah046 { get; set; }
-        public string Blah047 { get; set; }
-        public string Blah048 { get; set; }
-        public string Blah049 { get; set; }
-        public string Blah050 { get; set; }
-        public string Blah051 { get; set; }
-        public string Blah052 { get; set; }
-        public string Blah053 { get; set; }
-        public string Blah054 { get; set; }
-        public string Blah055 { get; set; }
-        public string Blah056 { get; set; }
-        public string Blah057 { get; set; }
-        public string Blah058 { get; set; }
-        public string Blah059 { get; set; }
-        public string Blah060 { get; set; }
-        public string Blah061 { get; set; }
-        public string Blah062 { get; set; }
-        public string Blah063 { get; set; }
-        public string Blah064 { get; set; }
-        public string Blah065 { get; set; }
-        public string Blah066 { get; set; }
-        public string Blah067 { get; set; }
-        public string Blah068 { get; set; }
-        public string Blah069 { get; set; }
-        public string Blah070 { get; set; }
-        public string Blah071 { get; set; }
-        public string Blah072 { get; set; }
-        public string Blah073 { get; set; }
-        public string Blah074 { get; set; }
-        public string Blah075 { get; set; }
-        public string Blah076 { get; set; }
-        public string Blah077 { get; set; }
-        public string Blah078 { get; set; }
-        public string Blah079 { get; set; }
-        public string Blah080 { get; set; }
-        public string Blah081 { get; set; }
-        public string Blah082 { get; set; }
-        public string Blah083 { get; set; }
-        public string Blah084 { get; set; }
-        public string Blah085 { get; set; }
-        public string Blah086 { get; set; }
-        public string Blah087 { get; set; }
-        public string Blah088 { get; set; }
-        public string Blah089 { get; set; }
-        public string Blah090 { get; set; }
-        public string Blah091 { get; set; }
-        public string Blah092 { get; set; }
-        public string Blah093 { get; set; }
-        public string Blah094 { get; set; }
-        public string Blah095 { get; set; }
-        public string Blah096 { get; set; }
-        public string Blah097 { get; set; }
-        public string Blah098 { get; set; }
-        public string Blah099 { get; set; }
+        public string Column000 { get; set; }
+        public string Column001 { get; set; }
+        public string Column002 { get; set; }
+        public string Column003 { get; set; }
+        public string Column004 { get; set; }
+        public string Column005 { get; set; }
+        public string Column006 { get; set; }
+        public string Column007 { get; set; }
+        public string Column008 { get; set; }
+        public string Column009 { get; set; }
+        public string Column010 { get; set; }
+        public string Column011 { get; set; }
+        public string Column012 { get; set; }
+        public string Column013 { get; set; }
+        public string Column014 { get; set; }
+        public string Column015 { get; set; }
+        public string Column016 { get; set; }
+        public string Column017 { get; set; }
+        public string Column018 { get; set; }
+        public string Column019 { get; set; }
+        public string Column020 { get; set; }
+        public string Column021 { get; set; }
+        public string Column022 { get; set; }
+        public string Column023 { get; set; }
+        public string Column024 { get; set; }
+        public string Column025 { get; set; }
+        public string Column026 { get; set; }
+        public string Column027 { get; set; }
+        public string Column028 { get; set; }
+        public string Column029 { get; set; }
+        public string Column030 { get; set; }
+        public string Column031 { get; set; }
+        public string Column032 { get; set; }
+        public string Column033 { get; set; }
+        public string Column034 { get; set; }
+        public string Column035 { get; set; }
+        public string Column036 { get; set; }
+        public string Column037 { get; set; }
+        public string Column038 { get; set; }
+        public string Column039 { get; set; }
+        public string Column040 { get; set; }
+        public string Column041 { get; set; }
+        public string Column042 { get; set; }
+        public string Column043 { get; set; }
+        public string Column044 { get; set; }
+        public string Column045 { get; set; }
+        public string Column046 { get; set; }
+        public string Column047 { get; set; }
+        public string Column048 { get; set; }
+        public string Column049 { get; set; }
+        public string Column050 { get; set; }
+        public string Column051 { get; set; }
+        public string Column052 { get; set; }
+        public string Column053 { get; set; }
+        public string Column054 { get; set; }
+        public string Column055 { get; set; }
+        public string Column056 { get; set; }
+        public string Column057 { get; set; }
+        public string Column058 { get; set; }
+        public string Column059 { get; set; }
+        public string Column060 { get; set; }
+        public string Column061 { get; set; }
+        public string Column062 { get; set; }
+        public string Column063 { get; set; }
+        public string Column064 { get; set; }
+        public string Column065 { get; set; }
+        public string Column066 { get; set; }
+        public string Column067 { get; set; }
+        public string Column068 { get; set; }
+        public string Column069 { get; set; }
+        public string Column070 { get; set; }
+        public string Column071 { get; set; }
+        public string Column072 { get; set; }
+        public string Column073 { get; set; }
+        public string Column074 { get; set; }
+        public string Column075 { get; set; }
+        public string Column076 { get; set; }
+        public string Column077 { get; set; }
+        public string Column078 { get; set; }
+        public string Column079 { get; set; }
+        public string Column080 { get; set; }
+        public string Column081 { get; set; }
+        public string Column082 { get; set; }
+        public string Column083 { get; set; }
+        public string Column084 { get; set; }
+        public string Column085 { get; set; }
+        public string Column086 { get; set; }
+        public string Column087 { get; set; }
+        public string Column088 { get; set; }
+        public string Column089 { get; set; }
+        public string Column090 { get; set; }
+        public string Column091 { get; set; }
+        public string Column092 { get; set; }
+        public string Column093 { get; set; }
+        public string Column094 { get; set; }
+        public string Column095 { get; set; }
+        public string Column096 { get; set; }
+        public string Column097 { get; set; }
+        public string Column098 { get; set; }
+        public string Column099 { get; set; }
 
         #endregion
     }

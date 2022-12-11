@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace LINQTraining.Models
 {
     public class Mapping

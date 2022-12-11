@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <RootNamespace>LinqTraining_Answer</RootNamespace>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
@@ -8,23 +9,27 @@
         <PackageReference Include="EFCore.BulkExtensions" Version="3.6.6" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.31" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.31">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.31" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.31">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.31" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.31" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
         <PackageReference Include="xunit" Version="2.4.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="coverlet.collector" Version="1.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\LINQTraining\LINQTraining.csproj" />
     </ItemGroup>
 
 </Project>

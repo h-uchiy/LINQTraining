@@ -1,4 +1,6 @@
-﻿namespace LINQTraining.Models
+﻿#nullable disable
+
+namespace LINQTraining.Models
 {
     public class MetadataDataCategory
     {
