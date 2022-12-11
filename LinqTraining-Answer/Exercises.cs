@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using LINQTraining;
 using LINQTraining.Models;
 using LINQTraining.Utils;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace LINQTraining
+namespace LinqTraining_Answer
 {
     /// <summary>
     /// 演習問題
@@ -279,34 +280,9 @@ namespace LINQTraining
             
         }
         
-        
         public void Dispose()
         {
             _context.Dispose();
         }
-    }
-
-    public class Exercise1Result
-    {
-        public DataType DataType { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class Exercise4Result
-    {
-        public string MetadataCode { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class Exercise5Result
-    {
-        public string DataCategoryName { get; set; }
-        public string MetadataName { get; set; }
-    }
-
-    public class ErrorInfo
-    {
-        public int RowNo { get; set; }
-        public string ColumnName { get; set; }
     }
 }

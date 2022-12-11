@@ -15,14 +15,25 @@ namespace LINQTraining.Utils
         private readonly Random _random = new Random();
 
         /// <summary>
-        /// MetadataテーブルとDataValueテーブルに適当な行を生成します。
+        /// DataCategory, MetadataDataCategory, Metadata, DataValue テーブルに適当なデータを生成します。
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public async Task GenerateData(TrainingContext context)
         {
             await using var transaction = await context.Database.BeginTransactionAsync();
-
             var dataTypes = Enum.GetValues(typeof(DataType)).OfType<DataType>().ToList();
+
+            var dataCategories = await context.DataCategory.AnyAsync()
+                ? new List<DataCategory>()
+                : Enumerable.Range(1, 100)
+                    .Select(idx => new DataCategory
+                    {
+                        Code = $"DataCategoryCode{idx:D3}",
+                        Name = $"DataCategoryName{idx:D3}",
+                    })
+                    .ToList();
+            await context.BulkInsertAsync(dataCategories, new BulkConfig { SetOutputIdentity = true });
+
             var metadataList = await context.Metadata.AnyAsync()
                 ? new List<Metadata>()
                 : Enumerable.Range(1, 100)
@@ -130,7 +141,7 @@ namespace LINQTraining.Utils
 
         public string GetDataCategoryCode()
         {
-            return $"MetadataCode{_random.Next(1, 100):D3}";
+            return $"DataCategory{_random.Next(1, 100):D3}";
         }
     }
 }

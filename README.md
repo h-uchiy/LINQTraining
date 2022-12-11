@@ -20,6 +20,7 @@
 * download or clone this source code
 * run this command at ```LINQTraining.csproj``` existing folder
 ```
+dotnet tool install --version 3.1.31 --global dotnet-ef
 dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```

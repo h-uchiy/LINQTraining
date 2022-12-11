@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using LINQTraining.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using LINQTraining;
+using LINQTraining.Models;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Xunit;
-using Xunit.Abstractions;
 
-namespace LINQTraining
+namespace LinqTraining_Answer
 {
     // 解答例
     public static class Answers

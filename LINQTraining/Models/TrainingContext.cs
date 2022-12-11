@@ -7,7 +7,6 @@ namespace LINQTraining.Models
     {
         public DbSet<Mapping> Mappings { get; set; }
         public DbSet<DataCategory> DataCategory { get; set; }
-        public DbSet<MetadataDataCategory> MetadataDataCategories { get; set; }
         public DbSet<Metadata> Metadata { get; set; }
         public DbSet<DataValue> DataValues { get; set; }
 
