@@ -7,7 +7,7 @@ namespace LINQTraining.Utils
 {
     public static class LoggerExtensions
     {
-        public static ITestOutputHelper StopWatch(this ITestOutputHelper logger, Expression<Action> action)
+        public static void StopWatch(this ITestOutputHelper logger, Expression<Action> action)
         {
             var compile = action.Compile();
             var sw = new Stopwatch();
@@ -21,7 +21,22 @@ namespace LINQTraining.Utils
                 sw.Stop();
                 logger.WriteLine($"'{action.Body}' = {sw.ElapsedMilliseconds} ms");
             }
-            return logger;
+        }
+        
+        public static TResult StopWatch<TResult>(this ITestOutputHelper logger, Expression<Func<TResult>> action)
+        {
+            var compile = action.Compile();
+            var sw = new Stopwatch();
+            try
+            {
+                sw.Restart();
+                return compile.Invoke();
+            }
+            finally
+            {
+                sw.Stop();
+                logger.WriteLine($"'{action.Body}' = {sw.ElapsedMilliseconds} ms");
+            }
         }
     }
 }

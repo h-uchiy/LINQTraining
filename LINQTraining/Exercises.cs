@@ -37,9 +37,7 @@ namespace LINQTraining
             await _setupFixture.GenerateData(_context);
 
             // Act
-            // var result = Exercise1_Act(_context, "MetadataCode001");
-            var result = Answers.Exercise1_Act1(_context, "MetadataCode001");
-            // var result = await Answers.Exercise1_Act2(_context, "MetadataCode001").ToListAsync();
+            var result = Exercise1_Act(_context, "MetadataCode001");
 
             // Assert
             Assert.Equal(1000, result.Count);
@@ -50,11 +48,6 @@ namespace LINQTraining
         /// <summary>
         /// DataValues.Metadata.Code == metadataCode となるDataValuesから、DataTypeとValueを取得します。
         /// </summary>
-        /// <remarks>
-        /// 1. ループを記述しないようにリファクタリングしてください。
-        /// 2. 最終的に必要なデータ以外の列をDBから取得しないようにリファクタリングしてください。
-        /// 3. データをメモリに展開しないようにリファクタリングしてください。
-        /// </remarks>
         private static List<Exercise1Result> Exercise1_Act(TrainingContext context, string metadataCode)
         {
             var metadataValues = context.DataValues
@@ -95,8 +88,6 @@ namespace LINQTraining
 
             // Act
             _logger.StopWatch(() => Exercise2_Act(dataTable, errorsList));
-            // Answers.Exercise2_Act1(dataTable, errorsList);
-            // Answers.Exercise2_Act2(dataTable, errorsList);
 
             // Assert
             var expectedErrorInfos = from error in errorsList
@@ -158,8 +149,6 @@ namespace LINQTraining
 
             // Act
             var (codes, duplicatedCodes) = await Exercise3_Act(_context);
-            // var (codes, duplicatedCodes) = await Answers.Exercise3_Act1(_context);
-            // var (codes, duplicatedCodes) = Answers.Exercise3_Act2(_context);
 
             // Assert
             Assert.Equal(codes.Distinct().Count(), codes.Count());
@@ -208,8 +197,6 @@ namespace LINQTraining
 
             // Act
             var models = Exercise4_Act(_context, metadataCodes);
-            // var models = await Answers.Exercise4_Act1(_context, metadataCodes);
-            // var models = Answers.Exercise4_Act2(_context, metadataCodes);
 
             // Assert
             Assert.All(metadataCodes, code =>

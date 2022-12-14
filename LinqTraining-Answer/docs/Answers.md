@@ -1,104 +1,10 @@
 ---
 marp: true
 theme: default
-title: LINQ研修 テキスト
+title: LINQ研修 テキスト 解説編
 ---
 
-# LINQ演習 テキスト
-
-## 演習の目標
-
-* LINQ to Object, LINQ to Entityの効率を意識した書き方やデバッグ方法を学ぶ
-* LINQ to Objectのカスタムクエリを実装する
-* LINQ to Entityの動的クエリを実装する
-
-## 予習しておいてほしい用語
-
-* ```IEnumerable```と```IQueryable```
-* ナビゲーションプロパティと```Include```
-* 関係演算（選択、射影、結合）
-
----
-
-## 環境
-
-あらかじめインストールしておいてください。
-
-### ないと動かないもの
-
-* [.NET Core 3.1 SDK 3.1.425](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) Version 3.1.31
-* [EF Core command-line tools](https://learn.microsoft.com/en-us/ef/core/cli/dotnet) Version 3.1.31
-
-### あると便利なもの
-
-* IDE (Visual Studio + [ReSharper](https://www.jetbrains.com/resharper/), or [Rider](https://www.jetbrains.com/rider/))
-* [SQL Server Management Studio (SSMS)](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16)
-
-#### EF Core command-line toolsのインストール
-
-```bat
-dotnet tool install --global --version 3.1.31 dotnet-ef
-```
-
----
-
-## ビルド
-
-[GitHubに演習プログラムを置いてあります](https://github.com/h-uchiy/LINQTraining)ので、cloneまたはダウンロードして、ビルドを通しておいてください。
-
-```bat
-cd C:\gitreps\LINQTraining\LINQTraining
-dotnet ef migrations add InitialCreate
-dotnet ef database drop
-dotnet ef database update
-dotnet build
-dotnet test
-```
-
-[dotnet ef コマンドのリファレンス](https://learn.microsoft.com/en-us/ef/core/cli/dotnet#dotnet-ef-database-drop)
-
----
-
-### 演習プログラムの解説
-
-* 演習問題は```Excercise.cs```にて、xUnitのテストケースとして作成してあります。
-* テストケースはAAAパターン(Arrange/Act/Assert)で作成してあります。
-  * Arrangeにてダミーのデータをデータベースに作成します。
-  * Actが演習問題の本体で、別関数```ExerciseX_Act```にて実装しています。
-  * Actを```Answers.cs```にある解答例と差し替えて実行することもできます。
-* データモデルの一部のクラスには、大量の無駄なプロパティ```BlahXXXX```を定義してあります。これは大量の列が定義されている現実のプロジェクトのテーブルを模したもので、非効率なクエリが一目でわかるように作成しています。
-* 実際に実行されるSQLをログに出力します。やり方は```TrainingContext.cs```を見てください。
-
----
-
-## 例題1
-
-この関数をリファクタリングしてください。
-
-```c#
-private static async List<Exercise1Result> Exercise1_Act(TrainingContext context, string metadataCode)
-{
-    var metadataValues = context.DataValues
-        .Include(x => x.Metadata)
-        .Where(x => x.Metadata.Code == metadataCode);
-
-    var result = new List<Exercise1Result>();
-    foreach (var metadataValue in metadataValues.ToList())
-    {
-        result.Add(new Exercise1Result
-        {
-            DataType = metadataValue.Metadata.DataType,
-            Value = metadataValue.Value
-        });
-    }
-
-    return result;
-}
-```
-
-一見すると複雑に見えますが、選択と射影(filter & map)しかしていないことに、すぐに気づいてほしいです。
-LINQはそのための道具なので、この程度のことは1行で記述できます。
-
+# LINQ演習 テキスト 解説編
 ---
 
 ## 例題1 - ループの除去
@@ -312,11 +218,11 @@ ReSharper/Riderに付属するdotTraceというプロファイラで遅い箇所
 
 何も考えずにLINQを使っていると、線形探索しか使っていないということになりがちです。場面に応じて最適な探索アルゴリズムを選べるようになりましょう。
 
-| アルゴリズム | コンテナ | LINQ                                    |
-| ---- |---- |-----------------------------------------|
-| 線形探索         | ```Array<T>```<br/>```List<T>```                                                                      | ```Where()```<br/>```ToList()``` |
-| 二分探索         | ```SortedSet<T>```<br/>```SortedList<TKey,TValue>```<br/>```SortedDictionary<TKey,TValue>``` | -                                       |
-| ハッシュテーブル | ```Set<T>```<br/>```Dictionary<TKey,TValue>```<br/>```Lookup<TKey,TElement>``` | ```ToDictionary()```<br/>```ToLookup()``` |
+| アルゴリズム | コンテナ                                                                                   |
+| ---- |----------------------------------------------------------------------------------------|
+| 線形探索        | ```Array<T>```, ```List<T>```                                                          |
+| 二分探索        | ```SortedSet<T>```, ```<TKey,TValue>```, ```SortedDictionary<TKey,TValue>``` |
+| ハッシュテーブル | ```Set<T>```, ```Dictionary<TKey,TValue>```, ```Lookup<TKey,TElement>```               |
 
 
 ## 例題3 - 
