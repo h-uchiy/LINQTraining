@@ -104,8 +104,9 @@ private static async List<Exercise1Result> Exercise1_Act(TrainingContext context
 
 * 一見すると複雑に見えますが、選択と射影(filter & map)しかしていないことに、すぐに気づいてほしいです。 LINQはそのための道具なので、この程度のことは1行で記述できます。
 * ループを解消してください。ReSharper/Riderであれば、自動リファクタリングで片付きます。
-* 実際に実行されるSQLがコンソールに出力されるので、それを観察して、最終的に必要なデータ以外の列をDBから取得しないようにしてください。
+* IQueryableが実行しようとする式や、実際に実行されるSQLを確認して、最終的に必要なデータ以外の列をDBから取得しないようにしてください。
 * データをメモリに展開しないようにしてください。Exercise1_Actの戻り値は```IQueryable```に変更しても構いません。
+* Joinを使った式に書き直してみましょう。
 
 ---
 
@@ -158,7 +159,20 @@ dataTableの件数に比例してerrorsListの件数も増える場合
 
 ---
 
-## 例題3 - カスタムクエリメソッドを実装する
+## 例題3 - カスタムクエリメソッドを実装する（即時実行編）
+
+* 標準の```ToArray()```, ```ToList()```, ```ToDictionary()```, ```ToLookup()```のように、コンテナに変換するメソッド```ToSortedSet()```, ```ToSortedList()```, ```ToSortedDictionary()```, ```ToSet()```を作成してください。
+* 標準クエリ演算子```Distinct()```には、```OrderBy()```や```GroupBy()```,```ToDictionary()```のようにキーを指定する機能が無いので不便です。 キーを指定できる```DistinctBy()```を作成してください。
+
+### ヒント
+
+* ```IEnumerable<T>```を第一引数として、戻り値としてコンテナを返す、拡張メソッドを作ります。
+* ```int```や```string```などの組込型だけでなく、任意のユーザー定義型でも、検索アルゴリズムが正しく動作するようにしてください。
+* [MoreLINQ](https://morelinq.github.io/)の[ソースコード](https://github.com/morelinq/MoreLINQ/tree/master/MoreLinq)が参考になるかもしれません。
+
+---
+
+## 例題3 - カスタムクエリメソッドを実装する（遅延実行編）
 
 * 標準の```ToArray()```, ```ToList()```, ```ToDictionary()```, ```ToLookup()```のように、コンテナに変換するメソッド```ToSortedSet()```, ```ToSortedList()```, ```ToSortedDictionary()```, ```ToSet()```を作成してください。
 * 標準クエリ演算子```Distinct()```には、```OrderBy()```や```GroupBy()```,```ToDictionary()```のようにキーを指定する機能が無いので不便です。 キーを指定できる```DistinctBy()```を作成してください。
@@ -166,6 +180,7 @@ dataTableの件数に比例してerrorsListの件数も増える場合
 ### ヒント
 
 * ```IEnumerable<T>```を第一引数とする拡張メソッドを作ります。
+* 
 * [MoreLINQ](https://morelinq.github.io/)の[ソースコード](https://github.com/morelinq/MoreLINQ/tree/master/MoreLinq)が参考になるかもしれません。
 
 ---

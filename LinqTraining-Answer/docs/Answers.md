@@ -38,6 +38,35 @@ public static List<Exercise1Result> Exercise1_Act1(TrainingContext context, stri
 
 ---
 
+## 例題1 - IQueryableがSQLに変換する前の式を見る
+
+```IQueryable```をデバッガで調べてみましょう。
+
+![img_1.png](img_1.png)
+
+---
+
+```IQueryable.Expression.DebugView```の内容を見てみると、SQLに変換される前の式がわかります。
+
+```text
+.Call System.Linq.Queryable.Where(
+    .Call Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(
+        .Constant<Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[LINQTraining.Models.DataValue]>(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[LINQTraining.Models.DataValue]),
+        '(.Lambda #Lambda1<System.Func`2[LINQTraining.Models.DataValue,LINQTraining.Models.Metadata]>)),
+    '(.Lambda #Lambda2<System.Func`2[LINQTraining.Models.DataValue,System.Boolean]>))
+
+.Lambda #Lambda1<System.Func`2[LINQTraining.Models.DataValue,LINQTraining.Models.Metadata]>(LINQTraining.Models.DataValue $x)
+{
+    $x.Metadata
+}
+
+.Lambda #Lambda2<System.Func`2[LINQTraining.Models.DataValue,System.Boolean]>(LINQTraining.Models.DataValue $x) {
+    ($x.Metadata).Code == .Constant<LINQTraining.Exercises+<>c__DisplayClass5_0>(LINQTraining.Exercises+<>c__DisplayClass5_0).metadataCode
+}
+```
+
+---
+
 ## 例題1 - 実際に実行されるSQLを見る
 
 先のコードで実行されるSQLがコンソールに出力されるので、確認してください。
@@ -88,7 +117,7 @@ public static IQueryable<Exercise1Result> Exercise1_Act2(TrainingContext context
 }
 ```
 
-実行されるSQLはこうなり、必要な列だけが取得されています。
+実行されるSQLは、このように必要な列だけを取得するものになりました。
 
 ```sql
 SELECT [m].[DataType], [d].[Value]
@@ -99,7 +128,36 @@ WHERE [m].[Code] = @__metadataCode_0
 
 ---
 
-## Point - ```Include()```が必要な場合と不要な場合 (1)
+```Exercise1_Act2```が返す```IQueryable```が実行しようとする式を見てみます。
+![img_2.png](img_2.png)
+
+---
+
+Viewを開くと、このようになっています。
+
+```text
+.Call System.Linq.Queryable.Select(
+    .Call System.Linq.Queryable.Where(
+        .Constant<Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[LINQTraining.Models.DataValue]>(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[LINQTraining.Models.DataValue]),
+        '(.Lambda #Lambda1<System.Func`2[LINQTraining.Models.DataValue,System.Boolean]>)),
+    '(.Lambda #Lambda2<System.Func`2[LINQTraining.Models.DataValue,LINQTraining.Exercise1Result]>))
+
+.Lambda #Lambda1<System.Func`2[LINQTraining.Models.DataValue,System.Boolean]>(LINQTraining.Models.DataValue $x) {
+    ($x.Metadata).Code == .Constant<LinqTraining_Answer.Answers+<>c__DisplayClass6_0>(LinqTraining_Answer.Answers+<>c__DisplayClass6_0).metadataCode
+}
+
+.Lambda #Lambda2<System.Func`2[LINQTraining.Models.DataValue,LINQTraining.Exercise1Result]>(LINQTraining.Models.DataValue $x)
+{
+    .New LINQTraining.Exercise1Result(){
+        DataType = ($x.Metadata).DataType,
+        Value = $x.Value
+    }
+}
+```
+
+---
+
+## Point - ```Include()```が必要な場合と不要な場合
 
 上の例では何気なく```Include()```を削除してしまいましたが、動いています。
 
@@ -129,11 +187,15 @@ System.NullReferenceException: Object reference not set to an instance of an obj
 
 ---
 
-## Point - ```Include()```が必要な場合と不要な場合 (2)
+## Point - ```Include()```について
 
-```Include()```は、ナビゲーションプロパティをメモリにロードすることをEFに指示するコマンドです。
+* ```Include()```は、ナビゲーションプロパティをメモリにロードすることをEFに指示するコマンドです。
 ナビゲーションプロパティの参照が、```IQueryalble```の世界で完結している場合は、必要ありません。
 大量のデータが不用意にロードされないように、なるべく書かないようにした方が良いです。
+* 実行されたSQLからわかるように、この例題は以下のように書き直すことができます。
+```c#
+
+```
 
 ---
 

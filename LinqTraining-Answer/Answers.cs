@@ -77,6 +77,20 @@ namespace LinqTraining_Answer
                     Value = x.Value
                 });
         }
+        
+        /// <remarks>
+        /// Joinで書き直し
+        /// </remarks>
+        private static IQueryable<Exercise1Result> Exercise1_Act3(TrainingContext context, string metadataCode)
+        {
+            return from dv in context.DataValues
+                join m in context.Metadata on dv.MetadataId equals m.Id
+                select new Exercise1Result
+                {
+                    DataType = m.DataType,
+                    Value = dv.Value
+                };
+        }
 
         /// <summary>
         /// 例題2
