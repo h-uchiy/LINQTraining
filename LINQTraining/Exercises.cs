@@ -72,10 +72,8 @@ namespace LINQTraining
         /// </summary>
         /// <param name="rowCount">Exercise2_Actに与えるdataTableとerrorsListの行数。（dataTableのすべての行にエラーが発生しているという想定）</param>
         [Theory]
-        // [InlineData(1000)]
         [InlineData(1000)]
-        [InlineData(2000)]
-        [InlineData(10000)]
+        // [InlineData(100000)]
         public void Exercise2(int rowCount)
         {
             // Arrange
@@ -108,8 +106,7 @@ namespace LINQTraining
         /// </summary>
         /// <remarks>
         /// ・Multiple Iterationを解消してください。
-        /// ・dataTableとerrorsListの行数を増やすと、増やした分だけの時間がかかるのではなく、それ以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）なぜこのようになるのか説明してください。
-        /// ・行数を増やしても実行時間があまり遅くならないように改善してください。
+        /// ・dataTableとerrorsListの行数を増やすと、増やした分だけの時間がかかるのではなく、それ以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）なぜこのようになるのか考えて、これを解消してください。
         /// </remarks>
         private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> errorsList)
         {
@@ -129,6 +126,50 @@ namespace LINQTraining
             }
         }
 
+        [Fact]
+        public async Task Exercise3_ToSortedSet()
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var src = await _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType }).ToListAsync();
+            
+            // Act & Assert
+            Assert.Throws<NotImplementedException>(() => src.ToSortedSet());
+        }
+
+        [Fact]
+        public async Task Exercise3_ToSortedSetAsync()
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var src = _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType });
+            
+            // Act & Assert
+            await Assert.ThrowsAsync<NotImplementedException>(() => src.ToSortedSetAsync());
+        }
+
+        [Fact]
+        public async Task Exercise3_ToSortedList()
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var src = await _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType }).ToListAsync();
+            
+            // Act & Assert
+            Assert.Throws<NotImplementedException>(() => src.ToSortedList());
+        }
+
+        [Fact]
+        public async Task Exercise3_ToSortedListAsync()
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var src = _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType });
+            
+            // Act & Assert
+            await Assert.ThrowsAsync<NotImplementedException>(() => src.ToSortedListAsync());
+        }
+
         /// <summary>
         /// CodeAとCodeBの組み合わせが格納されたテーブルMappingsをインポートします。
         /// ・コードの組み合わせは[Code1][SPACE][Code2]とします。（Codeには空白が含まれない）
@@ -142,20 +183,20 @@ namespace LINQTraining
         [Theory]
         [InlineData(1000)]
         // [InlineData(100000)]
-        public async Task Exercise3(int size)
+        public async Task Exercise5(int size)
         {
             // Arrange
             await _setupFixture.GenerateMappings(_context, size);
 
             // Act
-            var (codes, duplicatedCodes) = await Exercise3_Act(_context);
+            var (codes, duplicatedCodes) = await Exercise5_Act(_context);
 
             // Assert
             Assert.Equal(codes.Distinct().Count(), codes.Count());
             Assert.Equal(duplicatedCodes.Distinct().Count(), duplicatedCodes.Count());
         }
 
-        private static async Task<(ICollection<string> codes, ICollection<string> duplicatedCodes)> Exercise3_Act(TrainingContext context)
+        private static async Task<(ICollection<string> codes, ICollection<string> duplicatedCodes)> Exercise5_Act(TrainingContext context)
         {
             var codes = new List<string>();
             var duplicatedCodes = new List<string>();
@@ -189,14 +230,14 @@ namespace LINQTraining
         /// ・それぞれ実行されるSQLの違いについて説明してください。
         /// </remarks>
         [Fact]
-        public async Task Exercise4()
+        public async Task Exercise6()
         {
             // Arrange
             await _setupFixture.GenerateData(_context);
             var metadataCodes = _setupFixture.GetSomeMetadataCodes();
 
             // Act
-            var models = Exercise4_Act(_context, metadataCodes);
+            var models = Exercise6_Act(_context, metadataCodes);
 
             // Assert
             Assert.All(metadataCodes, code =>
@@ -205,38 +246,38 @@ namespace LINQTraining
                 ));
         }
 
-        private static IQueryable<Exercise4Result> Exercise4_Act(TrainingContext context, IEnumerable<string> metadataCodes)
+        private static IQueryable<Exercise6Result> Exercise6_Act(TrainingContext context, IEnumerable<string> metadataCodes)
         {
             return from av in context.DataValues
                     .Include(x => x.Metadata)
                 join ac in metadataCodes on av.Metadata.Code equals ac
-                select new Exercise4Result { MetadataCode = av.Metadata.Code, Value = av.Value };
+                select new Exercise6Result { MetadataCode = av.Metadata.Code, Value = av.Value };
         }
 
         [Fact]
-        public async Task Exercise5()
+        public async Task Exercise7()
         {
             // Arrange
             await _setupFixture.GenerateData(_context);
             var metadataCodes = _setupFixture.GetDataCategoryCode();
 
             // Act
-            var models = Exercise5_Act(_context, metadataCodes);
-            // var models2 = Answers.Exercise5_Act1(_context, metadataCodes);
+            var models = Exercise7_Act(_context, metadataCodes);
+            // var models2 = Answers.Exercise7_Act1(_context, metadataCodes);
 
             // Assert
         }
 
-        private static IEnumerable<Exercise5Result> Exercise5_Act(TrainingContext context, string dataCategoryCodes)
+        private static IEnumerable<Exercise7Result> Exercise7_Act(TrainingContext context, string dataCategoryCodes)
         {
-            var results = new List<Exercise5Result>();
+            var results = new List<Exercise7Result>();
             foreach (var dataCategory in context.DataCategory.Where(x => x.Code == dataCategoryCodes))
             {
                 if (dataCategory.MetadataDataCategory.Any())
                 {
                     foreach (var metadataDataCategory in dataCategory.MetadataDataCategory)
                     {
-                        results.Add(new Exercise5Result
+                        results.Add(new Exercise7Result
                         {
                             DataCategoryName = dataCategory.Name,
                             MetadataName = metadataDataCategory.Metadata.Name,
@@ -245,7 +286,7 @@ namespace LINQTraining
                 }
                 else
                 {
-                    results.Add(new Exercise5Result
+                    results.Add(new Exercise7Result
                     {
                         DataCategoryName = dataCategory.Name,
                         MetadataName = null,
@@ -255,17 +296,6 @@ namespace LINQTraining
 
             return results;
         }
-
-        /// <summary>
-        /// 標準クエリ演算子<see cref="System.Linq.Enumerable.Distinct"/>には、OrderByやGroupBy,ToDictionaryのようにキーを指定する機能が無いので不便です。
-        /// キーを指定できるバージョンを作成してください。
-        /// </summary>
-        [Fact]
-        public async Task DistinctBy()
-        {
-            
-        }
-        
         
         public void Dispose()
         {
@@ -279,13 +309,13 @@ namespace LINQTraining
         public string Value { get; set; }
     }
 
-    public class Exercise4Result
+    public class Exercise6Result
     {
         public string MetadataCode { get; set; }
         public string Value { get; set; }
     }
 
-    public class Exercise5Result
+    public class Exercise7Result
     {
         public string DataCategoryName { get; set; }
         public string MetadataName { get; set; }

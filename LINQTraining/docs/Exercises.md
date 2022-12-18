@@ -16,8 +16,9 @@ title: LINQ研修 テキスト 問題編
 
 ## 予習
 
-* 環境およびビルドの項目に従い、環境構築と演習プログラムのビルドをしておく。
-* 問題編のテキスト（この文書）とソースコード(```Exercises.cs```)を読み、わからない用語を調べておく
+* このテキストとソースコード(```Exercises.cs```)を読み、不明点を調べておく
+* 環境の項目に従い、環境構築をしておく
+* ビルドの項目に従い、演習プログラムのビルドを通しておく
 
 ---
 
@@ -65,10 +66,11 @@ dotnet test
 * プロジェクトは問題編```LinqTraining```と解答編```LinqTraining-Answer```に分かれています。
 * 演習問題は```Excercise.cs```にて、xUnitのテストケースとして作成してあります。
 * テストケースは[AAAパターン(Arrange/Act/Assert)](https://qiita.com/inasync/items/e0b54e62784710c4b42d)で作成してあります。
-  * Arrangeにてダミーのデータをデータベースに作成します。
-  * Actが演習問題の本体で、別関数```ExerciseX_Act```にて実装しています。
-  * Actを```Answers.cs```にある解答例と差し替えて実行することもできます。
-* データモデルの一部のクラスには、大量の無駄なプロパティ```BlahXXXX```を定義してあります。これは大量の列が定義されている現実のプロジェクトのテーブルを模したもので、非効率なクエリが一目でわかるように作成しています。
+    * Arrangeにてダミーのデータをデータベースに作成します。
+    * Actが演習問題の本体で、別関数```ExerciseX_Act```にて実装しています。
+    * Actを```Answers.cs```にある解答例と差し替えて実行することもできます。
+* データモデルの一部のクラスには、大量の無駄なプロパティ```BlahXXXX```
+  を定義してあります。これは大量の列が定義されている現実のプロジェクトのテーブルを模したもので、非効率なクエリが一目でわかるように作成しています。
 * 実際に実行されるSQLをログに出力します。やり方は```TrainingContext.cs```を見てください。
 
 ---
@@ -105,7 +107,7 @@ private static async List<Exercise1Result> Exercise1_Act(TrainingContext context
 * 一見すると複雑に見えますが、選択と射影(filter & map)しかしていないことに、すぐに気づいてほしいです。 LINQはそのための道具なので、この程度のことは1行で記述できます。
 * ループを解消してください。ReSharper/Riderであれば、自動リファクタリングで片付きます。
 * IQueryableが実行しようとする式や、実際に実行されるSQLを確認して、最終的に必要なデータ以外の列をDBから取得しないようにしてください。
-* データをメモリに展開しないようにしてください。Exercise1_Actの戻り値は```IQueryable```に変更しても構いません。
+* 無駄な```ToList()```を削除して、データをメモリに展開しないようにしてください。Exercise1_Actの戻り値は```IQueryable```に変更しても構いません。
 * Joinを使った式に書き直してみましょう。
 
 ---
@@ -139,13 +141,16 @@ private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> er
 ## 例題2 - 仕様と問題点
 
 ### 仕様
+
 * dataTableには、1で始まる行番号'Row No'列のほか、多数の列があります。
 * errorsListには、エラーがある行の番号と、列の名前が入っています。
 * dataTableに'Error Column'列を追加して、エラーがある列の名前を書き込みます。
-  * 同じ行の複数の列にエラーがある場合は、列名をカンマ区切りで'Error Column'列に書き込みます。
+    * 同じ行の複数の列にエラーがある場合は、列名をカンマ区切りで'Error Column'列に書き込みます。
 
 ### 問題点
+
 dataTableの件数に比例してerrorsListの件数も増える場合
+
 * 1000件のデータでは瞬時に処理が完了する
 * 10万件のデータでは10分経っても処理が完了しない
 
@@ -153,34 +158,32 @@ dataTableの件数に比例してerrorsListの件数も増える場合
 
 ## 例題2 - ヒント
 
-* ReSharper/Riderでは["Multiple Enumeration"](https://www.jetbrains.com/help/rider/PossibleMultipleEnumeration.html)という警告が発生します。これを解消してください。
-* dataTableとerrorsListの行数を増やすと、増やした分だけの時間がかかるのではなく、それ以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）<br/>なぜこのようになるのか調べてください。
+* ReSharper/Riderでは["Multiple Enumeration"](https://www.jetbrains.com/help/rider/PossibleMultipleEnumeration.html)
+  という警告が発生します。これを解消してください。
+* dataTableとerrorsListの行数を増やすと、増やした分だけの時間がかかるのではなく、それ以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）<br/>
+  なぜこのようになるのか調べてください。
 * 検索アルゴリズムを使えば、行数を増やしても実行時間があまり遅くならないようにできますので、そのように改善してください。
 
 ---
 
 ## 例題3 - カスタムクエリメソッドを実装する（即時実行編）
 
-* 標準の```ToArray()```, ```ToList()```, ```ToDictionary()```, ```ToLookup()```のように、コンテナに変換するメソッド```ToSortedSet()```, ```ToSortedList()```, ```ToSortedDictionary()```, ```ToSet()```を作成してください。
-* 標準クエリ演算子```Distinct()```には、```OrderBy()```や```GroupBy()```,```ToDictionary()```のようにキーを指定する機能が無いので不便です。 キーを指定できる```DistinctBy()```を作成してください。
+* 標準の```ToArray()```, ```ToList()```, ```ToDictionary()```, ```ToLookup()```
+  のように、コンテナに変換するメソッド```ToSortedSet()```, ```ToSortedList()```, ```ToSortedDictionary()```, ```ToSet()```を作成してください。
+* 標準クエリ演算子```Distinct()```には、```OrderBy()```や```GroupBy()```,```ToDictionary()```のようにキーを指定する機能が無いので不便です。
+  キーを指定できる```DistinctBy()```を作成してください。
 
-### ヒント
+### 例題3 - ヒント
 
 * ```IEnumerable<T>```を第一引数として、戻り値としてコンテナを返す、拡張メソッドを作ります。
 * ```int```や```string```などの組込型だけでなく、任意のユーザー定義型でも、検索アルゴリズムが正しく動作するようにしてください。
-* [MoreLINQ](https://morelinq.github.io/)の[ソースコード](https://github.com/morelinq/MoreLINQ/tree/master/MoreLinq)が参考になるかもしれません。
+* [MoreLINQ](https://morelinq.github.io/)の[ソースコード](https://github.com/morelinq/MoreLINQ/tree/master/MoreLinq)
+  が参考になるかもしれません。
 
 ---
 
-## 例題3 - カスタムクエリメソッドを実装する（遅延実行編）
-
-* 標準の```ToArray()```, ```ToList()```, ```ToDictionary()```, ```ToLookup()```のように、コンテナに変換するメソッド```ToSortedSet()```, ```ToSortedList()```, ```ToSortedDictionary()```, ```ToSet()```を作成してください。
-* 標準クエリ演算子```Distinct()```には、```OrderBy()```や```GroupBy()```,```ToDictionary()```のようにキーを指定する機能が無いので不便です。 キーを指定できる```DistinctBy()```を作成してください。
+## 例題4 - カスタムクエリメソッドを実装する（遅延実行編）
 
 ### ヒント
-
-* ```IEnumerable<T>```を第一引数とする拡張メソッドを作ります。
-* 
-* [MoreLINQ](https://morelinq.github.io/)の[ソースコード](https://github.com/morelinq/MoreLINQ/tree/master/MoreLinq)が参考になるかもしれません。
 
 ---

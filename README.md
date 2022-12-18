@@ -1,8 +1,8 @@
 # LINQTraining
 
- Code samples for LINQ to Object / LINQ to Entity training.
+Code samples for LINQ to Object / LINQ to Entity training.
 
- (Code comments and documents are written in Japanese.)
+(Code comments and documents are written in Japanese.)
 
 ## Goals
 

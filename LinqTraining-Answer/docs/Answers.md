@@ -72,14 +72,15 @@ public static List<Exercise1Result> Exercise1_Act1(TrainingContext context, stri
 先のコードで実行されるSQLがコンソールに出力されるので、確認してください。
 
 ```sql
-SELECT [d].[Id], [d].[Blah000], [d].[Blah001], ..., [d].[Blah099], [d].[MetadataId], [d].[Value],
- [m].[Id], [m].[Blah000], [m].[Blah001], ..., [m].[Blah099], [m].[Code], [m].[DataType], [m].[Name]
+SELECT [d].[Id], [d].[Blah000], [d].[Blah001], ..., [d].[Blah099], [d].[MetadataId], [d].[Value], [m].[Id], [m].[Blah000], [m].[Blah001], ..., [m].[Blah099], [m].[Code], [m].[DataType], [m].[Name]
 FROM [DataValues] AS [d]
-INNER JOIN [Metadata] AS [m] ON [d].[MetadataId] = [m].[Id]
+    INNER JOIN [Metadata] AS [m]
+ON [d].[MetadataId] = [m].[Id]
 WHERE [m].[Code] = @__metadataCode_0
 ```
 
-必要な列は```[Metadata].[DataType]```と```[DataValues].[Value]```のみなのに、不要な列が大量に取得されています。SQL Serverとの通信はネットワーク経由になるのが普通ですから、パフォーマンス上の大きなペナルティになり得ます。
+必要な列は```[Metadata].[DataType]```と```[DataValues].[Value]```のみなのに、不要な列が大量に取得されています。SQL
+Serverとの通信はネットワーク経由になるのが普通ですから、パフォーマンス上の大きなペナルティになり得ます。
 
 これは、```Where```まではSQLに変換されているが、```Select```がSQLに変換されていないので、全部の列をSQL Serverから取ってきて、メモリ上で```Select```を実行しているためです。
 
@@ -122,7 +123,8 @@ public static IQueryable<Exercise1Result> Exercise1_Act2(TrainingContext context
 ```sql
 SELECT [m].[DataType], [d].[Value]
 FROM [DataValues] AS [d]
-INNER JOIN [Metadata] AS [m] ON [d].[MetadataId] = [m].[Id]
+    INNER JOIN [Metadata] AS [m]
+ON [d].[MetadataId] = [m].[Id]
 WHERE [m].[Code] = @__metadataCode_0
 ```
 
@@ -190,9 +192,10 @@ System.NullReferenceException: Object reference not set to an instance of an obj
 ## Point - ```Include()```について
 
 * ```Include()```は、ナビゲーションプロパティをメモリにロードすることをEFに指示するコマンドです。
-ナビゲーションプロパティの参照が、```IQueryalble```の世界で完結している場合は、必要ありません。
-大量のデータが不用意にロードされないように、なるべく書かないようにした方が良いです。
+  ナビゲーションプロパティの参照が、```IQueryalble```の世界で完結している場合は、必要ありません。
+  大量のデータが不用意にロードされないように、なるべく書かないようにした方が良いです。
 * 実行されたSQLからわかるように、この例題は以下のように書き直すことができます。
+
 ```c#
 
 ```
@@ -229,10 +232,10 @@ private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> er
 これは、開発中は問題なく動作していたが、実運用では使い物にならない、という典型的な事例です。
 
 * dataTableが増えてもerrorsListは増えない場合
-  * 瞬時に処理が完了する
+    * 瞬時に処理が完了する
 * dataTableの件数に比例してerrorsListの件数も増える場合
-  * 開発中に1000件程度のデータでデバッグしていると、瞬時に処理が完了する
-  * 実運用で10万件のデータが入ると、10分経っても処理が完了しない
+    * 開発中に1000件程度のデータでデバッグしていると、瞬時に処理が完了する
+    * 実運用で10万件のデータが入ると、10分経っても処理が完了しない
 
 ---
 
@@ -268,11 +271,11 @@ ReSharper/Riderに付属するdotTraceというプロファイラで遅い箇所
 
 専門的な探索アルゴリズムは色々ありますが、プログラマーが日常的に扱う探索アルゴリズムは、この3種類しかありません。
 
-| 名前 | 概要 | 速さ | Pros/Cons |
-| ---------------- | ---------------------- | -------- | ------------------------------------ |
-| 線形探索 | 全要素を探索 | *O(N)* | 遅いが、単純なので要素が少なければ最速 |
-| 二分探索 | 範囲を絞りながら探索 | *O(log2N)* | メモリ消費が少ないが、ソートするので追加が遅い   |
-| ハッシュテーブル | 要素のハッシュ値で探索 | *O(1)*     | バケットを構築するのでメモリを食う |
+| 名前       | 概要          | 速さ         | Pros/Cons               |
+|----------|-------------|------------|-------------------------|
+| 線形探索     | 全要素を探索      | *O(N)*     | 遅いが、単純なので要素が少なければ最速     |
+| 二分探索     | 範囲を絞りながら探索  | *O(log2N)* | メモリ消費が少ないが、ソートするので追加が遅い |
+| ハッシュテーブル | 要素のハッシュ値で探索 | *O(1)*     | バケットを構築するのでメモリを食う       |
 
 ---
 
@@ -280,12 +283,11 @@ ReSharper/Riderに付属するdotTraceというプロファイラで遅い箇所
 
 何も考えずにLINQを使っていると、線形探索しか使っていないということになりがちです。場面に応じて最適な探索アルゴリズムを選べるようになりましょう。
 
-| アルゴリズム | コンテナ                                                                                   |
-| ---- |----------------------------------------------------------------------------------------|
-| 線形探索        | ```Array<T>```, ```List<T>```                                                          |
-| 二分探索        | ```SortedSet<T>```, ```<TKey,TValue>```, ```SortedDictionary<TKey,TValue>``` |
-| ハッシュテーブル | ```Set<T>```, ```Dictionary<TKey,TValue>```, ```Lookup<TKey,TElement>```               |
-
+| アルゴリズム   | コンテナ                                                                         |
+|----------|------------------------------------------------------------------------------|
+| 線形探索     | ```Array<T>```, ```List<T>```                                                |
+| 二分探索     | ```SortedSet<T>```, ```<TKey,TValue>```, ```SortedDictionary<TKey,TValue>``` |
+| ハッシュテーブル | ```Set<T>```, ```Dictionary<TKey,TValue>```, ```Lookup<TKey,TElement>```     |
 
 ## 例題3 - 
 

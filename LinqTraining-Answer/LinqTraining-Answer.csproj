@@ -31,7 +31,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LINQTraining\LINQTraining.csproj" />
+        <ProjectReference Include="..\LINQTraining\LINQTraining.csproj" />
     </ItemGroup>
 
 </Project>
