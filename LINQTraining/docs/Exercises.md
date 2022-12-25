@@ -46,7 +46,7 @@ dotnet tool install --global --version 3.1.31 dotnet-ef
 
 ## ビルド
 
-[GitHubに演習プログラムを置いてあります](https://github.com/h-uchiy/LINQTraining)ので、cloneまたはダウンロードして、ビルドを通しておいてください。
+[GitHubに演習プログラムを置いてあります](https://github.com/h-uchiy/LINQTraining)ので、cloneまたはダウンロードして、ビルドを通しておいてください。（更新するのでcloneがおすすめ）
 
 ```bat
 cd C:\gitreps\LINQTraining\LINQTraining
@@ -63,14 +63,13 @@ dotnet test
 
 ### 演習プログラムの構成
 
-* プロジェクトは問題編```LinqTraining```と解答編```LinqTraining-Answer```に分かれています。
+* プロジェクトは問題編```LinqTraining```と解答編```LinqTraining-Answer```があります。
 * 演習問題は```Excercise.cs```にて、xUnitのテストケースとして作成してあります。
 * テストケースは[AAAパターン(Arrange/Act/Assert)](https://qiita.com/inasync/items/e0b54e62784710c4b42d)で作成してあります。
-    * Arrangeにてダミーのデータをデータベースに作成します。
-    * Actが演習問題の本体で、別関数```ExerciseX_Act```にて実装しています。
-    * Actを```Answers.cs```にある解答例と差し替えて実行することもできます。
-* データモデルの一部のクラスには、大量の無駄なプロパティ```BlahXXXX```
-  を定義してあります。これは大量の列が定義されている現実のプロジェクトのテーブルを模したもので、非効率なクエリが一目でわかるように作成しています。
+  * Arrangeにてダミーのデータをデータベースに作成します。
+  * Actが演習問題の本体で、別関数```ExerciseX_Act```にて実装しています。
+  * Actを```Answers.cs```にある解答例と差し替えて実行することもできます。
+* データモデルの一部のクラスには、大量の無駄なプロパティ```BlahXXXX```を定義してあります。これは大量の列が定義されている現実のプロジェクトのテーブルを模したもので、非効率なクエリが一目でわかるように作成しています。
 * 実際に実行されるSQLをログに出力します。やり方は```TrainingContext.cs```を見てください。
 
 ---
@@ -114,8 +113,7 @@ private static async List<Exercise1Result> Exercise1_Act(TrainingContext context
 
 ## 例題2
 
-これは、開発中は問題なく動作するが、実運用でデータが増えると極端に遅くなって使い物にならない、という事例です。
-データが増えても遅くならないように改善してください。
+これは、開発中は問題なく動作するが、実運用でデータが増えると使い物にならない、という事例です。実用に耐えられるように改善してください。
 
 ```c#
 private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> errorsList)
@@ -145,45 +143,48 @@ private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> er
 * dataTableには、1で始まる行番号'Row No'列のほか、多数の列があります。
 * errorsListには、エラーがある行の番号と、列の名前が入っています。
 * dataTableに'Error Column'列を追加して、エラーがある列の名前を書き込みます。
-    * 同じ行の複数の列にエラーがある場合は、列名をカンマ区切りで'Error Column'列に書き込みます。
+  * 同じ行の複数の列にエラーがある場合は、列名をカンマ区切りで'Error Column'列に書き込みます。
 
 ### 問題点
 
 dataTableの件数に比例してerrorsListの件数も増える場合
 
-* 1000件のデータでは瞬時に処理が完了する
-* 10万件のデータでは10分経っても処理が完了しない
+* デバッグのため1000件のダミーデータ動かすと瞬時に処理が完了する
+* 実運用で10万件のデータが入れられると10分経っても処理が完了しない
 
 ---
 
 ## 例題2 - ヒント
 
-* ReSharper/Riderでは["Multiple Enumeration"](https://www.jetbrains.com/help/rider/PossibleMultipleEnumeration.html)
-  という警告が発生します。これを解消してください。
-* dataTableとerrorsListの行数を増やすと、増やした分だけの時間がかかるのではなく、それ以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）<br/>
-  なぜこのようになるのか調べてください。
-* 検索アルゴリズムを使えば、行数を増やしても実行時間があまり遅くならないようにできますので、そのように改善してください。
+* ReSharper/Riderでは["Multiple Enumeration"](https://www.jetbrains.com/help/rider/PossibleMultipleEnumeration.html)という警告が発生します。これを解消してください。
+* dataTableとerrorsListの行数を増やすと、行数を増やした以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）
+なぜこのようになるのか考えて、これを解消してください。
 
 ---
 
 ## 例題3 - カスタムクエリメソッドを実装する（即時実行編）
 
-* 標準の```ToArray()```, ```ToList()```, ```ToDictionary()```, ```ToLookup()```
-  のように、コンテナに変換するメソッド```ToSortedSet()```, ```ToSortedList()```, ```ToSortedDictionary()```, ```ToSet()```を作成してください。
-* 標準クエリ演算子```Distinct()```には、```OrderBy()```や```GroupBy()```,```ToDictionary()```のようにキーを指定する機能が無いので不便です。
-  キーを指定できる```DistinctBy()```を作成してください。
+* 標準の```ToArray()```, ```ToList()```, ```ToHashSet()```, ```ToDictionary()```, ```ToLookup()```のように、コンテナに変換するメソッド```ToSortedSet()```, ```ToSortedList()```, ```ToSortedDictionary()```を```EnumerableExtensions.cs```に作成してください。
+* 上記のそれぞれについて、非同期版```~Async()```を```QueryableExtensions.cs```に作ってください。
 
 ### 例題3 - ヒント
 
-* ```IEnumerable<T>```を第一引数として、戻り値としてコンテナを返す、拡張メソッドを作ります。
 * ```int```や```string```などの組込型だけでなく、任意のユーザー定義型でも、検索アルゴリズムが正しく動作するようにしてください。
-* [MoreLINQ](https://morelinq.github.io/)の[ソースコード](https://github.com/morelinq/MoreLINQ/tree/master/MoreLinq)
-  が参考になるかもしれません。
+* 標準のメソッドのソースコードを読んで、真似してください。
 
 ---
 
 ## 例題4 - カスタムクエリメソッドを実装する（遅延実行編）
 
+以下の課題は```EnumerableExtensions.cs```に作成してください。
+
+* 標準の```Distinct()```には、```OrderBy()```や```GroupBy()```,```ToDictionary()```のようにキーを指定する機能が無いので不便です。 キーを指定できる```DistinctBy()```に作成してください。
+* 入力シーケンスを指定されたサイズの配列に分割する```Chunk()```を作成してください。
+
 ### ヒント
+
+* [```yield return```](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/yield)を使って実装してください。
+* 以上の課題のメソッドはすべて.NET6で追加されたものです。.NET Core 3.1以前のプロジェクトで同じことをしたいという場合に自作できると便利だと思います。
+* 余力があれば、```IQueryalble```版も```QueryableExtensions.cs```に作ってみてください。
 
 ---
