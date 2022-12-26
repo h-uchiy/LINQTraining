@@ -227,16 +227,16 @@ namespace LinqTraining_Answer
             // Assert
             Assert.All(metadataCodes, code =>
                 Assert.Throws<InvalidOperationException>(() =>
-                    Assert.Contains<Exercise4Result>(models, x => x.MetadataCode == code)
+                    Assert.Contains<Exercise6Result>(models, x => x.MetadataCode == code)
                 ));
         }
 
-        private static IQueryable<Exercise4Result> Exercise4_Act(TrainingContext context, IEnumerable<string> metadataCodes)
+        private static IQueryable<Exercise6Result> Exercise4_Act(TrainingContext context, IEnumerable<string> metadataCodes)
         {
             return from av in context.DataValues
                     .Include(x => x.Metadata)
                 join ac in metadataCodes on av.Metadata.Code equals ac
-                select new Exercise4Result { MetadataCode = av.Metadata.Code, Value = av.Value };
+                select new Exercise6Result { MetadataCode = av.Metadata.Code, Value = av.Value };
         }
 
         [Fact]
@@ -252,16 +252,16 @@ namespace LinqTraining_Answer
             // Assert
         }
 
-        private static IEnumerable<Exercise5Result> Exercise5_Act(TrainingContext context, string dataCategoryCodes)
+        private static IEnumerable<Exercise7Result> Exercise5_Act(TrainingContext context, string dataCategoryCodes)
         {
-            var results = new List<Exercise5Result>();
+            var results = new List<Exercise7Result>();
             foreach (var dataCategory in context.DataCategory.Where(x => x.Code == dataCategoryCodes))
             {
                 if (dataCategory.MetadataDataCategory.Any())
                 {
                     foreach (var metadataDataCategory in dataCategory.MetadataDataCategory)
                     {
-                        results.Add(new Exercise5Result
+                        results.Add(new Exercise7Result
                         {
                             DataCategoryName = dataCategory.Name,
                             MetadataName = metadataDataCategory.Metadata.Name,
@@ -270,7 +270,7 @@ namespace LinqTraining_Answer
                 }
                 else
                 {
-                    results.Add(new Exercise5Result
+                    results.Add(new Exercise7Result
                     {
                         DataCategoryName = dataCategory.Name,
                         MetadataName = null,
@@ -326,37 +326,37 @@ namespace LinqTraining_Answer
         /// （良くない例）すべてメモリにロードして演算する実装
         /// Includeを使うと必要のないプロパティまで全部ロードされるので効率が良くない
         /// </summary>
-        public static async Task<IEnumerable<Exercise4Result>> Exercise4_Act1(TrainingContext context, IEnumerable<string> metadataCodes)
+        public static async Task<IEnumerable<Exercise6Result>> Exercise4_Act1(TrainingContext context, IEnumerable<string> metadataCodes)
         {
             return from av in await context.DataValues
                     .Include(x => x.Metadata)
                     .ToListAsync()
                 join ac in metadataCodes on av.Metadata.Code equals ac
-                select new Exercise4Result { MetadataCode = av.Metadata.Code, Value = av.Value };
+                select new Exercise6Result { MetadataCode = av.Metadata.Code, Value = av.Value };
         }
 
         /// <summary>
         /// DB側ですべて演算を行い、最終的に必要なデータのみをメモリにロードする実装
         /// LINQ to Entityの式の中で参照する分にはIncludeを記述する必要はない
         /// </summary>
-        public static IQueryable<Exercise4Result> Exercise4_Act2(TrainingContext context,
+        public static IQueryable<Exercise6Result> Exercise4_Act2(TrainingContext context,
             ICollection<string> metadataCodes)
         {
             return from av in context.DataValues
                 // メモリ上の値による絞り込みを行いたい場合はICollection.Contains()を使用するとSQLに変換できる
                 where metadataCodes.Contains(av.Metadata.Code)
-                select new Exercise4Result { MetadataCode = av.Metadata.Code, Value = av.Value };
+                select new Exercise6Result { MetadataCode = av.Metadata.Code, Value = av.Value };
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public static IQueryable<Exercise5Result> Exercise5_Act1(TrainingContext context, string dataCategoryCodes)
+        public static IQueryable<Exercise7Result> Exercise5_Act1(TrainingContext context, string dataCategoryCodes)
         {
             return from dataCategory in context.DataCategory
                 where dataCategory.Code == dataCategoryCodes
                 from metadataDataCategory in dataCategory.MetadataDataCategory.DefaultIfEmpty()
-                select new Exercise5Result
+                select new Exercise7Result
                 {
                     DataCategoryName = dataCategory.Name,
                     MetadataName = metadataDataCategory.Metadata.Name,

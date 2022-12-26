@@ -156,7 +156,7 @@ namespace LINQTraining
             var src = await _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType }).ToListAsync();
             
             // Act & Assert
-            Assert.Throws<NotImplementedException>(() => src.ToSortedList());
+            Assert.Throws<NotImplementedException>(() => src.ToSortedList(x => x.Code));
         }
 
         [Fact]
@@ -167,19 +167,35 @@ namespace LINQTraining
             var src = _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType });
             
             // Act & Assert
-            await Assert.ThrowsAsync<NotImplementedException>(() => src.ToSortedListAsync());
+            await Assert.ThrowsAsync<NotImplementedException>(() => src.ToSortedListAsync(x => x.Code));
+        }
+
+        [Fact]
+        public async Task Exercise4_DistinctBy()
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var src = _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType });
+            
+            // Act & Assert
+            Assert.Throws<NotImplementedException>(() => src.DistinctBy(x => x.Code));
+        }
+
+        [Fact]
+        public async Task Exercise4_Chunk()
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var src = _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType });
+            
+            // Act & Assert
+            Assert.Throws<NotImplementedException>(() => src.Chunk(30));
         }
 
         /// <summary>
-        /// CodeAとCodeBの組み合わせが格納されたテーブルMappingsをインポートします。
-        /// ・コードの組み合わせは[Code1][SPACE][Code2]とします。（Codeには空白が含まれない）
-        /// ・重複する組み合わせをduplicatedCodesに格納します。
-        /// ・uniqueとなる組み合わせをcodesに格納します。
+        /// 演習5
         /// </summary>
-        /// <remarks>
-        /// ・Mappingsテーブルの行数(size)が大きい場合、このメソッドの実行にはとても時間がかかります。
-        /// 　遅い理由を説明し、size=10万の場合でも1秒以内でで完了するように改善してください。
-        /// </remarks>
+        /// <param name="size">Mappingsテーブルの行数</param>
         [Theory]
         [InlineData(1000)]
         // [InlineData(100000)]
@@ -189,14 +205,24 @@ namespace LINQTraining
             await _setupFixture.GenerateMappings(_context, size);
 
             // Act
-            var (codes, duplicatedCodes) = await Exercise5_Act(_context);
+            var result = await Exercise5_Act(_context);
 
             // Assert
-            Assert.Equal(codes.Distinct().Count(), codes.Count());
-            Assert.Equal(duplicatedCodes.Distinct().Count(), duplicatedCodes.Count());
+            Assert.Equal(result.Codes.Distinct().Count(), result.Codes.Count);
+            Assert.Equal(result.DuplicatedCodes.Distinct().Count(), result.DuplicatedCodes.Count);
         }
 
-        private static async Task<(ICollection<string> codes, ICollection<string> duplicatedCodes)> Exercise5_Act(TrainingContext context)
+        /// <summary>
+        /// CodeAとCodeBの組み合わせが格納されたテーブルMappingsをインポートします。
+        /// ・コードの組み合わせは[CodeA][SPACE][CodeB]とします。（Codeには空白が含まれない）
+        /// ・重複する組み合わせをduplicatedCodesに格納します。
+        /// ・uniqueとなる組み合わせをcodesに格納します。
+        /// </summary>
+        /// <remarks>
+        /// Mappingsテーブルの行数が多いと、このメソッドの実行にはとても時間がかかります。
+        /// 遅い理由を説明し、10万行でも1秒以内に完了するように改善してください。
+        /// </remarks>
+        private static async Task<Exercise5Result> Exercise5_Act(TrainingContext context)
         {
             var codes = new List<string>();
             var duplicatedCodes = new List<string>();
@@ -216,19 +242,12 @@ namespace LINQTraining
                 }
             }
 
-            return (codes, duplicatedCodes);
+            return new Exercise5Result(codes, duplicatedCodes);
         }
 
         /// <summary>
-        /// 複数のAttributeに対するAttributeValueの値を取得します。
-        /// 対象となるAttributeのCodeは動的に決定するものとします。
+        /// 演習6
         /// </summary>
-        /// <remarks>
-        /// ・このコードはコンパイルは通りますが動作しません。動作しない理由を説明してください。
-        /// ・上記のエラーを修正して動作するようにしてください。modelsはIEnumerableでも構いません。
-        /// ・modelsがIQueryableになるように修正してください。
-        /// ・それぞれ実行されるSQLの違いについて説明してください。
-        /// </remarks>
         [Fact]
         public async Task Exercise6()
         {
@@ -246,12 +265,25 @@ namespace LINQTraining
                 ));
         }
 
-        private static IQueryable<Exercise6Result> Exercise6_Act(TrainingContext context, IEnumerable<string> metadataCodes)
+        /// <summary>
+        /// metadataCodesで指定された複数のMetadataに対するDataValueを取得します。
+        /// </summary>
+        /// <remarks>
+        /// ・このコードはコンパイルは通りますが動作しません。動作しない理由を説明してください。
+        /// ・上記のエラーを修正して動作するようにしてください。modelsはIEnumerableでも構いません。
+        /// ・modelsがIQueryableになるように修正してください。
+        /// ・それぞれ実行されるSQLの違いについて説明してください。
+        /// </remarks>
+        private static IQueryable<Exercise6Result> Exercise6_Act(
+            TrainingContext context, IEnumerable<string> metadataCodes)
         {
-            return from av in context.DataValues
-                    .Include(x => x.Metadata)
+            return from av in context.DataValues.Include(x => x.Metadata)
                 join ac in metadataCodes on av.Metadata.Code equals ac
-                select new Exercise6Result { MetadataCode = av.Metadata.Code, Value = av.Value };
+                select new Exercise6Result
+                {
+                    MetadataCode = av.Metadata.Code,
+                    Value = av.Value
+                };
         }
 
         [Fact]
@@ -307,6 +339,18 @@ namespace LINQTraining
     {
         public DataType DataType { get; set; }
         public string Value { get; set; }
+    }
+
+    public class Exercise5Result
+    {
+        public Exercise5Result(List<string> codes, List<string> duplicatedCodes)
+        {
+            Codes = codes;
+            DuplicatedCodes = duplicatedCodes;
+        }
+
+        public List<string> Codes { get; }
+        public List<string> DuplicatedCodes { get; }
     }
 
     public class Exercise6Result

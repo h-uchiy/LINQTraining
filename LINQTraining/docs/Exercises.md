@@ -4,7 +4,7 @@ theme: default
 title: LINQ研修 テキスト 問題編
 ---
 
-# LINQ演習 テキスト 問題編
+# LINQ研修 テキスト 問題編
 
 ## 演習の目標
 
@@ -14,11 +14,22 @@ title: LINQ研修 テキスト 問題編
 * LINQ to Objectのカスタムクエリを実装する
 * LINQ to Entityの動的クエリを実装する
 
-## 予習
+## 準備
 
-* このテキストとソースコード(```Exercises.cs```)を読み、不明点を調べておく
-* 環境の項目に従い、環境構築をしておく
-* ビルドの項目に従い、演習プログラムのビルドを通しておく
+* このテキスト(```Exercises.cs```)を読み、わからない言葉などを調べておく
+* [環境](#環境)と[ビルド](#ビルド)の項目に従い、演習プログラムのビルドを通しておく
+* LINQに馴染みの少ない方は勉強しておく。（古い記事ですが[［完全版］究極のC#プログラミング Chapter15 LINQとクエリ式](https://atmarkit.itmedia.co.jp/fdotnet/csharp30/index/index.html) がおすすめ）
+
+---
+
+## MSDNの読み方
+
+* 日本語は大部分が機械翻訳で、意味不明な訳がされていたり、全く逆の意味に誤訳されていることもあるので、必ず英語を読みます。
+* とはいえ、頭から英語で読むのもしんどいので、日本語でナナメ読みしてから英語でちゃんと読むのがおすすめです。
+* 日本語から英語への切り替えは、ここをクリックします。
+![To English Icon](image-msdn-toeng-icon.png)
+* 英語から日本語への切り替えは、ここを```ja-jp```に書き換えます。
+![To Japanese URL](image-msdnurl.png)
 
 ---
 
@@ -33,7 +44,7 @@ title: LINQ研修 テキスト 問題編
 
 ### あると便利なもの
 
-* IDE (Visual Studio + [ReSharper](https://www.jetbrains.com/resharper/), or [Rider](https://www.jetbrains.com/rider/))
+* IDE ([Visual Studio](https://visualstudio.microsoft.com/vs/community/) + [ReSharper](https://www.jetbrains.com/resharper/), or [Rider](https://www.jetbrains.com/rider/))
 * [SQL Server Management Studio (SSMS)](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16)
 
 #### EF Core command-line toolsのインストール
@@ -46,7 +57,7 @@ dotnet tool install --global --version 3.1.31 dotnet-ef
 
 ## ビルド
 
-[GitHubに演習プログラムを置いてあります](https://github.com/h-uchiy/LINQTraining)ので、cloneまたはダウンロードして、ビルドを通しておいてください。（更新するのでcloneがおすすめ）
+[GitHubに演習プログラムを置いてあります](https://github.com/h-uchiy/LINQTraining)ので、cloneするかダウンロードして、ビルドを通しておいてください。
 
 ```bat
 cd C:\gitreps\LINQTraining\LINQTraining
@@ -74,12 +85,11 @@ dotnet test
 
 ---
 
-## 例題1
-
-この関数をリファクタリングして、必要最小限のデータのみをSQL Serverから取得するように改善してください。
+## 演習1
 
 ```c#
-private static async List<Exercise1Result> Exercise1_Act(TrainingContext context, string metadataCode)
+private static async List<Exercise1Result> Exercise1_Act(
+    TrainingContext context, string metadataCode)
 {
     var metadataValues = context.DataValues
         .Include(x => x.Metadata)
@@ -91,7 +101,7 @@ private static async List<Exercise1Result> Exercise1_Act(TrainingContext context
         result.Add(new Exercise1Result
         {
             DataType = metadataValue.Metadata.DataType,
-            Value = metadataValue.Value
+            DataType = metadataValue.Value
         });
     }
 
@@ -101,9 +111,24 @@ private static async List<Exercise1Result> Exercise1_Act(TrainingContext context
 
 ---
 
-## 例題1 - ヒント
+### 仕様
 
-* 一見すると複雑に見えますが、選択と射影(filter & map)しかしていないことに、すぐに気づいてほしいです。 LINQはそのための道具なので、この程度のことは1行で記述できます。
+metadataCodeで指定されたコードに一致するMetadata.Codeを持つDataValuesDataValuesから、DataTypeとValueを取得します。
+
+### 問題
+
+* このメソッドが戻り値を生成するために必要なデータは、条件に一致するMetadataの、DataTypeとDataTypeのみです。にもかかわらず、このメソッドはそれ以外のデータを大量にDBから取得するため、遅いです。
+* このメソッドが行っていることに比べると、実装が複雑です。
+
+### 課題
+
+このメソッドをリファクタリングして、必要最小限のデータのみをSQL Serverから取得するように改善してください。
+
+---
+
+### ヒント
+
+* 一見すると複雑に見えますが、選択と射影(filter & map)しかしていないことに、すぐに気づいてほしいです。LINQはそのための道具なので、この程度のことは1行で記述できます。
 * ループを解消してください。ReSharper/Riderであれば、自動リファクタリングで片付きます。
 * IQueryableが実行しようとする式や、実際に実行されるSQLを確認して、最終的に必要なデータ以外の列をDBから取得しないようにしてください。
 * 無駄な```ToList()```を削除して、データをメモリに展開しないようにしてください。Exercise1_Actの戻り値は```IQueryable```に変更しても構いません。
@@ -111,9 +136,9 @@ private static async List<Exercise1Result> Exercise1_Act(TrainingContext context
 
 ---
 
-## 例題2
+## 演習2
 
-これは、開発中は問題なく動作するが、実運用でデータが増えると使い物にならない、という事例です。実用に耐えられるように改善してください。
+開発中は問題なく動作するが、実運用でデータが増えると使い物にならない、という事例です。
 
 ```c#
 private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> errorsList)
@@ -136,25 +161,27 @@ private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> er
 
 ---
 
-## 例題2 - 仕様と問題点
-
 ### 仕様
 
 * dataTableには、1で始まる行番号'Row No'列のほか、多数の列があります。
 * errorsListには、エラーがある行の番号と、列の名前が入っています。
 * dataTableに'Error Column'列を追加して、エラーがある列の名前を書き込みます。
-  * 同じ行の複数の列にエラーがある場合は、列名をカンマ区切りで'Error Column'列に書き込みます。
+  * 同じ行の複数の列にエラーがある場合は、それらの列名をカンマ区切りで'Error Column'列に書き込みます。
 
-### 問題点
+### 問題
 
 dataTableの件数に比例してerrorsListの件数も増える場合
 
-* デバッグのため1000件のダミーデータ動かすと瞬時に処理が完了する
+* 開発中に1000件のダミーデータで動かすと瞬時に処理が完了する
 * 実運用で10万件のデータが入れられると10分経っても処理が完了しない
 
 ---
 
-## 例題2 - ヒント
+### 課題
+
+実運用に耐えられるように改善してください。
+
+### ヒント
 
 * ReSharper/Riderでは["Multiple Enumeration"](https://www.jetbrains.com/help/rider/PossibleMultipleEnumeration.html)という警告が発生します。これを解消してください。
 * dataTableとerrorsListの行数を増やすと、行数を増やした以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）
@@ -162,29 +189,203 @@ dataTableの件数に比例してerrorsListの件数も増える場合
 
 ---
 
-## 例題3 - カスタムクエリメソッドを実装する（即時実行編）
+## 演習3 - カスタムクエリメソッドを実装する（即時実行編）
 
 * 標準の```ToArray()```, ```ToList()```, ```ToHashSet()```, ```ToDictionary()```, ```ToLookup()```のように、コンテナに変換するメソッド```ToSortedSet()```, ```ToSortedList()```, ```ToSortedDictionary()```を```EnumerableExtensions.cs```に作成してください。
 * 上記のそれぞれについて、非同期版```~Async()```を```QueryableExtensions.cs```に作ってください。
 
-### 例題3 - ヒント
+### ヒント
 
 * ```int```や```string```などの組込型だけでなく、任意のユーザー定義型でも、検索アルゴリズムが正しく動作するようにしてください。
 * 標準のメソッドのソースコードを読んで、真似してください。
 
 ---
 
-## 例題4 - カスタムクエリメソッドを実装する（遅延実行編）
+## 演習4 - カスタムクエリメソッドを実装する（遅延実行編）
 
 以下の課題は```EnumerableExtensions.cs```に作成してください。
 
-* 標準の```Distinct()```には、```OrderBy()```や```GroupBy()```,```ToDictionary()```のようにキーを指定する機能が無いので不便です。 キーを指定できる```DistinctBy()```に作成してください。
-* 入力シーケンスを指定されたサイズの配列に分割する```Chunk()```を作成してください。
+* 標準の```Distinct()```には、```OrderBy()```や```GroupBy()```,```ToDictionary()```のようにキーを指定する機能が無いので不便です。 キーを指定できる[```DistinctBy()```](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.distinctby)を作成してください。
+* シーケンスを指定されたサイズの配列に分割する[```Chunk()```](https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.chunk)を作成してください。
 
 ### ヒント
 
 * [```yield return```](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/yield)を使って実装してください。
-* 以上の課題のメソッドはすべて.NET6で追加されたものです。.NET Core 3.1以前のプロジェクトで同じことをしたいという場合に自作できると便利だと思います。
-* 余力があれば、```IQueryalble```版も```QueryableExtensions.cs```に作ってみてください。
+* 以上の課題のメソッドはすべて.NET6で追加されたものです。.NET Core 3.1以前のプロジェクトで同じことをしたい場合、自作できると便利です。
 
 ---
+
+## 演習5
+
+```c#
+private static async Task<Exercise5Result> Exercise5_Act(TrainingContext context)
+{
+    var codes = new List<string>();
+    var duplicatedCodes = new List<string>();
+    await foreach (var map in context.Mappings.AsAsyncEnumerable())
+    {
+        var key = map.CodeA + " " + map.CodeB;
+        if (codes.Any(x => x == key))
+        {
+            if (duplicatedCodes.All(x => x != key))
+            {
+                duplicatedCodes.Add(key);
+            }
+        }
+        else
+        {
+            codes.Add(key);
+        }
+    }
+
+    return new Exercise5Result(codes, duplicatedCodes);
+}
+```
+
+---
+
+### 仕様
+
+CodeAとCodeBの組み合わせが格納されたテーブルMappingsをインポートします。
+
+* CodeAとCodeBのの組み合わせは```[CodeA][SPACE][CodeB]```として表現します。
+* 重複する組み合わせを```duplicatedCodes```に格納します。
+* uniqueとなる組み合わせを```codes```に格納します。
+
+### 問題
+
+Mappingsテーブルの行数が多いと、とても時間がかかります。
+
+### 課題
+
+遅い理由を説明し、10万行でも1秒以内に完了するように改善してください。
+
+### ヒント
+
+演習2で学んだことを思い出してください。
+
+---
+
+## 演習6
+
+LINQ to Entityの制約を学ぶ問題です。
+
+```c#
+private static IQueryable<Exercise6Result> Exercise6_Act(
+    TrainingContext context, IEnumerable<string> metadataCodes)
+{
+    return from av in context.DataValues.Include(x => x.Metadata)
+        join ac in metadataCodes on av.Metadata.Code equals ac
+        select new Exercise6Result
+        {
+            MetadataCode = av.Metadata.Code,
+            Value = av.Value
+        };
+}
+```
+
+---
+
+### 仕様
+
+metadataCodesで指定された複数のMetadataに対するDataValueを取得します。
+
+### 問題
+
+このコードは一見すると動作するように見えます。
+しかし実際には、コンパイルは通りますが、実行するとエラーが発生します。
+
+### 課題
+
+* エラーが発生する理由を説明してください。
+* エラーを修正して動作するようにしてください。
+
+---
+
+### ヒント
+
+* LINQ to Entityには、コンパイルは通っても、C#の式をSQLに変換できないため実行できない、という場合があります。
+* LINQ to Entityの変換能力の制約は「[複雑なクエリ演算子](https://learn.microsoft.com/en-us/ef/core/querying/complex-query-operators)」に解説されています。
+* また、Transact-SQLに変換できるC#の関数は「[Microsoft SQL Server プロバイダーの関数のマッピング](https://learn.microsoft.com/en-us/ef/core/providers/sql-server/functions)」に一覧があります。ここにない関数をWhere式に書いても、SQLに変換してSQL Server上で実行できないので、エラーになります。
+* Where式には書けない関数も、Select式には書けます。なぜなら、Where式はSQL Server上で実行されるものですが、Select式はSQL Serverに対して取得したい列を指定できればよく、値の生成はC#側で実行されるからです。
+
+---
+
+## 演習7
+
+```c#
+private static IEnumerable<Exercise7Result> Exercise7_Act(TrainingContext context, string dataCategoryCodes)
+{
+    var results = new List<Exercise7Result>();
+    foreach (var dataCategory in context.DataCategory.Where(x => x.Code == dataCategoryCodes))
+    {
+        if (dataCategory.MetadataDataCategory.Any())
+        {
+            foreach (var metadataDataCategory in dataCategory.MetadataDataCategory)
+            {
+                results.Add(new Exercise7Result
+                {
+                    DataCategoryName = dataCategory.Name,
+                    MetadataName = metadataDataCategory.Metadata.Name,
+                });
+            }
+        }
+        else
+        {
+            results.Add(new Exercise7Result
+            {
+                DataCategoryName = dataCategory.Name,
+                MetadataName = null,
+            });
+        }
+    }
+
+    return results;
+}
+```
+
+---
+
+### 仕様
+
+* このメソッドは、一体何をしようとしているのか、考えてみてください。
+
+### 問題
+
+* 一見すると難しいことをしているように見えますが、実は簡単なことを難しくして書いています。
+* そのために、SQL Server上で完結できる簡単な計算を、CPUとメモリとネットワークを無駄遣いして、遅くして実行しています。
+
+---
+
+### 課題
+
+* 1行で書き直してください。
+* 戻り値をIQueryableに変更して、SQL Server上で演算を完結させてください。
+
+### ヒント
+
+* DataCategory, MetadataDataCategory, MetadataのE-R図またはUMLを描いてみましょう。
+* すると、SQLのLEFT JOINで簡単に記述できる処理だとわかると思います。
+* LINQでLEFT JOINを記述する方法は、知らないとわからないと思います。
+
+---
+
+## 演習8
+
+TBD: LINQ to EntityのDynamic Queryの事例
+
+### 仕様
+
+TBD
+
+### 問題
+
+TBD
+
+### 課題
+
+TBD
+
+### ヒント
+
+TBD
