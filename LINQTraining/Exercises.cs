@@ -41,26 +41,27 @@ namespace LINQTraining
 
             // Assert
             Assert.Equal(1000, result.Count);
-            Assert.All(result.Zip(Enumerable.Range(1, result.Count)),
-                x => Assert.Equal((x.Second * 100).ToString(), x.First.Value));
+            Assert.All(
+                result.Select((x, idx) => new { x.Value, idx }),
+                x => Assert.Equal(((x.idx + 1) * 100).ToString(), x.Value));
         }
 
         /// <summary>
         /// DataValues.Metadata.Code == metadataCode となるDataValuesから、DataTypeとValueを取得します。
         /// </summary>
-        private static List<Exercise1Result> Exercise1_Act(TrainingContext context, string metadataCode)
+        public static List<Exercise1Result> Exercise1_Act(TrainingContext context, string metadataCode)
         {
-            var metadataValues = context.DataValues
+            var dataValues = context.DataValues
                 .Include(x => x.Metadata)
                 .Where(x => x.Metadata.Code == metadataCode);
 
             var result = new List<Exercise1Result>();
-            foreach (var metadataValue in metadataValues.ToList())
+            foreach (var dataValue in dataValues.ToList())
             {
                 result.Add(new Exercise1Result
                 {
-                    DataType = metadataValue.Metadata.DataType,
-                    Value = metadataValue.Value
+                    DataType = dataValue.Metadata.DataType,
+                    Value = dataValue.Value
                 });
             }
 
@@ -291,19 +292,19 @@ namespace LINQTraining
         {
             // Arrange
             await _setupFixture.GenerateData(_context);
-            var metadataCodes = _setupFixture.GetDataCategoryCode();
+            var dataCategoryCode = _setupFixture.GetDataCategoryCode();
 
             // Act
-            var models = Exercise7_Act(_context, metadataCodes);
+            var models = Exercise7_Act(_context, dataCategoryCode);
             // var models2 = Answers.Exercise7_Act1(_context, metadataCodes);
 
             // Assert
         }
 
-        private static IEnumerable<Exercise7Result> Exercise7_Act(TrainingContext context, string dataCategoryCodes)
+        private static IEnumerable<Exercise7Result> Exercise7_Act(TrainingContext context, string dataCategoryCode)
         {
             var results = new List<Exercise7Result>();
-            foreach (var dataCategory in context.DataCategory.Where(x => x.Code == dataCategoryCodes))
+            foreach (var dataCategory in context.DataCategory.Where(x => x.Code == dataCategoryCode))
             {
                 if (dataCategory.MetadataDataCategory.Any())
                 {
@@ -328,7 +329,62 @@ namespace LINQTraining
 
             return results;
         }
-        
+
+        [Theory]
+        [InlineData("MetadataCode012")]
+        public async Task Exercise8(string metadataCode)
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var metadata = await _context.Metadata.FirstAsync(x => x.Code == metadataCode);
+            
+            // Act
+            var columnValues = await Exercise8_Act(_context, metadata).ToListAsync();
+            
+            // Assert
+            Assert.All(columnValues, columnValue => Assert.Equal("ColumnValue012", columnValue));
+        }
+
+        private static IQueryable<string> Exercise8_Act(TrainingContext context, Metadata metadata)
+        {
+            return context.DataValues
+                .Where(x => x.MetadataId == metadata.Id)
+                .Select(x => (string)typeof(DataValue)
+                    .GetProperty($"Column{metadata.ColumnIndex:D3}")
+                    .GetValue(x));
+        }
+
+        [Theory]
+        [InlineData(123)]
+        public async Task Exercise9(int dataValueId)
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var dataValue = await _context.DataValues.Include(x => x.Metadata).FirstAsync(x => x.Id == dataValueId);
+            var expected = Enumerable.Range(0, 20).Select(idx => $"{dataValue.Metadata.CandidateList[^1]}{idx}").OrderBy(x => x).ToList();
+            
+            // Act
+            var result = Exercise9_Act(_context, dataValue);
+            
+            // Assert
+            Assert.Equal(expected, await result.OrderBy(x => x).ToListAsync());
+        }
+
+        private static IQueryable<string> Exercise9_Act(TrainingContext context, DataValue dataValue)
+        {
+            switch (dataValue.Metadata.CandidateList)
+            {
+                case "CandidateListA":
+                    return context.CandidateListA.Select(x => x.Value);
+                case "CandidateListB":
+                    return context.CandidateListB.Select(x => x.Value);
+                case "CandidateListC":
+                    return context.CandidateListC.Select(x => x.Value);
+                default:
+                    throw new IndexOutOfRangeException();
+            }
+        }
+
         public void Dispose()
         {
             _context.Dispose();

@@ -2,9 +2,11 @@
 marp: true
 theme: default
 title: LINQ研修 テキスト 解説編
+paginate: true
 ---
 
 # LINQ演習 テキスト 解説編
+
 ---
 
 ## 例題1 - ループの除去
@@ -32,7 +34,7 @@ public static List<Exercise1Result> Exercise1_Act1(TrainingContext context, stri
 
 ## 例題1 - 自動リファクタリング
 
-このパターンのループは機械的に```ToList()```に置き換えが可能です。上のコードはReSharper/Riderで自動リファクタリングしたものです。
+このパターンのループは機械的に`ToList()`に置き換えが可能です。上のコードはReSharper/Riderで自動リファクタリングしたものです。
 
 ![auto-refactor-suggestion](image-20221205202113467.png)
 
@@ -40,13 +42,13 @@ public static List<Exercise1Result> Exercise1_Act1(TrainingContext context, stri
 
 ## 例題1 - IQueryableがSQLに変換する前の式を見る
 
-```IQueryable```をデバッガで調べてみましょう。
+`IQueryable`をデバッガで調べてみましょう。
 
 ![img_1.png](img_1.png)
 
 ---
 
-```IQueryable.Expression.DebugView```の内容を見てみると、SQLに変換される前の式がわかります。
+`IQueryable.Expression.DebugView`の内容を見てみると、SQLに変換される前の式がわかります。
 
 ```text
 .Call System.Linq.Queryable.Where(
@@ -72,32 +74,32 @@ public static List<Exercise1Result> Exercise1_Act1(TrainingContext context, stri
 先のコードで実行されるSQLがコンソールに出力されるので、確認してください。
 
 ```sql
-SELECT [d].[Id], [d].[Blah000], [d].[Blah001], ..., [d].[Blah099], [d].[MetadataId], [d].[Value], [m].[Id], [m].[Blah000], [m].[Blah001], ..., [m].[Blah099], [m].[Code], [m].[DataType], [m].[Name]
+SELECT [d].[Id], [d].[Column000], [d].[Column001], ..., [d].[Column099], [d].[MetadataId], [d].[Value], [m].[Id], [m].[Column000], [m].[Column001], ..., [m].[Column099], [m].[Code], [m].[DataType], [m].[Name]
 FROM [DataValues] AS [d]
     INNER JOIN [Metadata] AS [m]
 ON [d].[MetadataId] = [m].[Id]
 WHERE [m].[Code] = @__metadataCode_0
 ```
 
-必要な列は```[Metadata].[DataType]```と```[DataValues].[Value]```のみなのに、不要な列が大量に取得されています。SQL
+必要な列は`[Metadata].[DataType]`と`[DataValues].[Value]`のみなのに、不要な列が大量に取得されています。SQL
 Serverとの通信はネットワーク経由になるのが普通ですから、パフォーマンス上の大きなペナルティになり得ます。
 
-これは、```Where```まではSQLに変換されているが、```Select```以降がSQLに変換されていないので、全部の列をSQL Serverから取ってきて、メモリ上で```Select```を実行しているためです。
+これは、`Where`まではSQLに変換されているが、`Select`以降がSQLに変換されていないので、全部の列をSQL Serverから取ってきて、メモリ上で`Select`を実行しているためです。
 
 ---
 
 ## 原則 - なるべくクエリオブジェクトのまま引っ張る
 
-* ```foreach```などのイテレーションや、```ToList()```などの即時実行関数は、最終的に必要なデータを作る時まで実行しない
+* `foreach`などのイテレーションや、`ToList()`などの即時実行関数は、最終的に必要なデータを作る時まで実行しない
 
-## 原則 - なるべく```IQueryable```のまま引っ張る
+## 原則 - なるべく`IQueryable`のまま引っ張る
 
-* ```IQueryable```で記述されている部分は、SQLに変換されてSQL Server上で実行される
-* ```IEnumerable```で記述されている部分は、メモリに展開されてC#上で実行される
+* `IQueryable`で記述されている部分は、SQLに変換されてSQL Server上で実行される
+* `IEnumerable`で記述されている部分は、メモリに展開されてC#上で実行される
 
-## 原則 - ```IQueryable```のうちに絞り込みを行う
+## 原則 - `IQueryable`のうちに絞り込みを行う
 
-* ```IEnumerable```で```Where```や```Select```をしても、通信量を削減できない
+* `IEnumerable`で`Where`や`Select`をしても、通信量を削減できない
 
 ---
 
@@ -130,7 +132,7 @@ WHERE [m].[Code] = @__metadataCode_0
 
 ---
 
-```Exercise1_Act2```が返す```IQueryable```が実行しようとする式を見てみます。
+`Exercise1_Act2`が返す`IQueryable`が実行しようとする式を見てみます。
 ![img_2.png](img_2.png)
 
 ---
@@ -159,11 +161,11 @@ Viewを開くと、このようになっています。
 
 ---
 
-## Point - ```Include()```が必要な場合と不要な場合
+## Point - `Include()`が必要な場合と不要な場合
 
-上の例では何気なく```Include()```を削除してしまいましたが、動いています。
+上の例では何気なく`Include()`を削除してしまいましたが、動いています。
 
-一方、次の場合は、```Include()```を削除すると動きません。
+一方、次の場合は、`Include()`を削除すると動きません。
 
 ```c#
 public static List<Exercise1Result> Exercise1_Act1(TrainingContext context, string metadataCode)
@@ -189,13 +191,14 @@ System.NullReferenceException: Object reference not set to an instance of an obj
 
 ---
 
-## Point - ```Include()```について
+## Point - `Include()`について
 
-```Include()```は、ナビゲーションプロパティをメモリにロードすることをEFに指示するコマンドです。
-  ナビゲーションプロパティの参照が、```IQueryalble```の世界で完結している場合は、必要ありません。
+`Include()`は、ナビゲーションプロパティをメモリにロードすることをEFに指示するコマンドです。
+  ナビゲーションプロパティの参照が、`IQueryalble`の世界で完結している場合は、必要ありません。
   大量のデータが不用意にロードされないように、なるべく書かないようにした方が良いです。
 
 実行されたSQLからわかるように、この例題は以下のように書き直すことができます。
+
 ```c#
 
 ```
@@ -204,9 +207,9 @@ System.NullReferenceException: Object reference not set to an instance of an obj
 
 ## 例題2
 
-このメソッドは、```errorsList```に書かれた情報に従って、```dataTable```に"Error Column"を追加します。（詳しい関数仕様はソースコードのコメントを参照）
+このメソッドは、`errorsList`に書かれた情報に従って、`dataTable`に"Error Column"を追加します。（詳しい関数仕様はソースコードのコメントを参照）
 
-```c#
+`c#
 private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> errorsList)
 {
     foreach (var row in dataTable.Rows.OfType<DataRow>())
@@ -257,7 +260,7 @@ ReSharper/Riderに付属するdotTraceというプロファイラで遅い箇所
 
 ![image-20221209161700092](image-20221209161700092.png)
 
-```Where```式内のラムダ式が1億2千万回呼ばれており、実行時間の大半がここで消費されていることがわかります。
+`Where`式内のラムダ式が1億2千万回呼ばれており、実行時間の大半がここで消費されていることがわかります。
 
 
 
@@ -285,9 +288,9 @@ ReSharper/Riderに付属するdotTraceというプロファイラで遅い箇所
 
 | アルゴリズム   | コンテナ                                                                         |
 |----------|------------------------------------------------------------------------------|
-| 線形探索     | ```Array<T>```, ```List<T>```                                                |
-| 二分探索     | ```SortedSet<T>```, ```<TKey,TValue>```, ```SortedDictionary<TKey,TValue>``` |
-| ハッシュテーブル | ```Set<T>```, ```Dictionary<TKey,TValue>```, ```Lookup<TKey,TElement>```     |
+| 線形探索     | `Array<T>`, `List<T>`                                                |
+| 二分探索     | `SortedSet<T>`, `<TKey,TValue>`, `SortedDictionary<TKey,TValue>` |
+| ハッシュテーブル | `Set<T>`, `Dictionary<TKey,TValue>`, `Lookup<TKey,TElement>`     |
 
 ## 例題3 - 
 

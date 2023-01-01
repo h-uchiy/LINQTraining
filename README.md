@@ -7,7 +7,7 @@ Code samples for LINQ to Object / LINQ to Entity training.
 ## Goals
 
 * Learn effective LINQ to Object / LINQ to Entity
-* Learn what is query object, and implement your query method.
+* Learn how to implement custom query method.
 * Learn how to implement dynamic query for LINQ to Entity.
 
 ## Getting Started
@@ -22,7 +22,7 @@ Code samples for LINQ to Object / LINQ to Entity training.
 ### Installing / Executing program
 
 * download or clone this source code
-* run this command at ```LINQTraining.csproj``` existing folder
+* run this command at `LINQTraining.csproj` existing folder
 
 ```bat
 dotnet tool install --version 3.1.31 --global dotnet-ef

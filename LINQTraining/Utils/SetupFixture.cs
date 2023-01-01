@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using LINQTraining.Models;
@@ -15,7 +19,7 @@ namespace LINQTraining.Utils
         private readonly Random _random = new Random();
 
         /// <summary>
-        /// DataCategory, MetadataDataCategory, Metadata, DataValue テーブルに適当なデータを生成します。
+        /// DataCategory, MetadataDataCategory, Metadata, DataValue, CandidateListX テーブルに適当なデータを生成します。
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public async Task GenerateData(TrainingContext context)
@@ -31,6 +35,7 @@ namespace LINQTraining.Utils
                         Code = $"DataCategoryCode{idx:D3}",
                         Name = $"DataCategoryName{idx:D3}",
                     })
+                    .FillColumn()
                     .ToList();
             await context.BulkInsertAsync(dataCategories, new BulkConfig { SetOutputIdentity = true });
 
@@ -41,8 +46,11 @@ namespace LINQTraining.Utils
                     {
                         Code = $"MetadataCode{idx:D3}",
                         Name = $"MetadataName{idx:D3}",
-                        DataType = dataTypes[idx % dataTypes.Count]
+                        DataType = dataTypes[idx % dataTypes.Count],
+                        CandidateList = $"CandidateList{(char)('A' + idx % 3)}",
+                        ColumnIndex = idx
                     })
+                    .FillColumn()
                     .ToList();
             await context.BulkInsertAsync(metadataList, new BulkConfig { SetOutputIdentity = true });
 
@@ -64,8 +72,39 @@ namespace LINQTraining.Utils
                             }
                         };
                     })
+                    .FillColumn()
                     .ToList();
             await context.BulkInsertAsync(metadataValues);
+
+            if (!await context.CandidateListA.AnyAsync())
+            {
+                var candidateValues = typeof(TrainingContext).GetProperties()
+                    .Where(x => Regex.IsMatch(x.Name, @"CandidateList[A-Z]{1}"))
+                    .SelectMany(property =>
+                    {
+                        var type = property.PropertyType.GenericTypeArguments[0];
+                        // idx => new <type> { Value = string.Format("{0}{idx}", (object)type.Name[^1], (object)idx) }
+                        var idxExpr = Expression.Parameter(typeof(int), "idx");
+                        var selector = Expression.Lambda<Func<int, object>>(
+                            Expression.MemberInit(
+                                Expression.New(type),
+                                Expression.Bind(
+                                    type.GetProperty("Value")!,
+                                    Expression.Call(
+                                        typeof(string),
+                                        nameof(string.Format),
+                                        null,
+                                        Expression.Constant("{0}{1}", typeof(string)),
+                                        Expression.Constant(type.Name[^1], typeof(object)),
+                                        Expression.Convert(idxExpr, typeof(object))))),
+                            idxExpr);
+
+                        return Enumerable.Range(0, 20).Select(selector.Compile());
+                    });
+
+                context.AddRange(candidateValues);
+                await context.SaveChangesAsync();
+            }
 
             await transaction.CommitAsync();
         }

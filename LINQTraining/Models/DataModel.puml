@@ -1,0 +1,57 @@
+﻿@startuml DataModel
+class Mapping {
+long Id
+string CodeA
+string CodeB
+}
+class DataCategory
+{
+long Id
+string Code
+string Name
+}
+class Metadata
+{
+long Id
+string Code
+string Name
+DataType DataType
+int ColumnIndex
+}
+class DataValue
+{
+long Id
+long MetadataId
+string Value
+}
+class MetadataDataCategory
+{
+long Id
+long MetadataId
+long DataCategoryId
+}
+class CandidateListA
+{
+long Id
+string Value
+}
+class CandidateListB
+{
+long Id
+string Value
+}
+class CandidateListC
+{
+long Id
+string Value
+}
+together {
+    class CandidateListA
+    class CandidateListB
+    class CandidateListC
+    class Mapping
+}
+Metadata "1" - "*" DataValue
+DataCategory "*" - "*" Metadata
+(DataCategory, Metadata) - MetadataDataCategory
+@enduml
