@@ -9,80 +9,32 @@ paginate: true
 
 ---
 
-## 例題1 - ループの除去
+## 例題1
 
-* LINQは「集合を集合のまま演算する」ものです。
-* ループを記述するということは、集合から要素を１つずつ取り出して、１つずつ演算する、ということですから、LINQを使う意味がありません。
+### 自動リファクタリングによるループの除去
 
-```csharp
-public static List<Exercise1Result> Exercise1_Act1(TrainingContext context, string metadataCode)
-{
-    return context.DataValues
-        .Include(x => x.Metadata)
-        .Where(x => x.Metadata.Code == metadataCode)
-        .ToList()
-        .Select(metadataValue => new Exercise1Result
-        {
-            DataType = metadataValue.Metadata.DataType,
-            Value = metadataValue.Value
-        })
-        .ToList();
-}
-```
+* LINQは「集合を集合のまま演算する」ものです。ループを記述するということは、集合から要素を１つずつ取り出して演算するということですから、LINQを使う意味がありません。
+* このパターンのループは機械的に`ToList()`に置き換えできます。ReSharper/Riderの自動リファクタリング機能では、このように書き換えられます。
+
+![movie](Exercise1_AutoRefactoring.png)
 
 ---
 
-## 例題1 - 自動リファクタリング
-
-このパターンのループは機械的に`ToList()`に置き換えが可能です。上のコードはReSharper/Riderで自動リファクタリングしたものです。
-
-![auto-refactor-suggestion](image-20221205202113467.png)
-
----
-
-## 例題1 - IQueryableがSQLに変換する前の式を見る
-
-`IQueryable`をデバッガで調べてみましょう。
-
-![img_1.png](img_1.png)
-
----
-
-`IQueryable.Expression.DebugView`の内容を見てみると、SQLに変換される前の式がわかります。
-
-```text
-.Call System.Linq.Queryable.Where(
-    .Call Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(
-        .Constant<Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[LINQTraining.Models.DataValue]>(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[LINQTraining.Models.DataValue]),
-        '(.Lambda #Lambda1<System.Func`2[LINQTraining.Models.DataValue,LINQTraining.Models.Metadata]>)),
-    '(.Lambda #Lambda2<System.Func`2[LINQTraining.Models.DataValue,System.Boolean]>))
-
-.Lambda #Lambda1<System.Func`2[LINQTraining.Models.DataValue,LINQTraining.Models.Metadata]>(LINQTraining.Models.DataValue $x)
-{
-    $x.Metadata
-}
-
-.Lambda #Lambda2<System.Func`2[LINQTraining.Models.DataValue,System.Boolean]>(LINQTraining.Models.DataValue $x) {
-    ($x.Metadata).Code == .Constant<LINQTraining.Exercises+<>c__DisplayClass5_0>(LINQTraining.Exercises+<>c__DisplayClass5_0).metadataCode
-}
-```
-
----
-
-## 例題1 - 実際に実行されるSQLを見る
+## 実際に実行されるSQLを見る
 
 先のコードで実行されるSQLがコンソールに出力されるので、確認してください。
 
 ```sql
-SELECT [d].[Id], [d].[Column000], [d].[Column001], ..., [d].[Column099], [d].[MetadataId], [d].[Value], [m].[Id], [m].[Column000], [m].[Column001], ..., [m].[Column099], [m].[Code], [m].[DataType], [m].[Name]
+SELECT [d].[Id], [d].[Column000], [d].[Column001], ..., [d].[Column099], [d].[MetadataId],
+ [d].[Value], [m].[Id], [m].[Column000], [m].[Column001], ..., [m].[Column099], [m].[Code],
+ [m].[DataType], [m].[Name]
 FROM [DataValues] AS [d]
     INNER JOIN [Metadata] AS [m]
 ON [d].[MetadataId] = [m].[Id]
 WHERE [m].[Code] = @__metadataCode_0
 ```
 
-必要な列は`[Metadata].[DataType]`と`[DataValues].[Value]`のみなのに、不要な列が大量に取得されています。SQL
-Serverとの通信はネットワーク経由になるのが普通ですから、パフォーマンス上の大きなペナルティになり得ます。
+必要な列は`[Metadata].[DataType]`と`[DataValues].[Value]`のみなのに、不要な列が大量に取得されています。SQL Serverとの通信はネットワーク経由になるのが普通ですから、パフォーマンス上の大きなペナルティになり得ます。
 
 これは、`Where`まではSQLに変換されているが、`Select`以降がSQLに変換されていないので、全部の列をSQL Serverから取ってきて、メモリ上で`Select`を実行しているためです。
 

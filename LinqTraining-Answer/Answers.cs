@@ -38,19 +38,29 @@ namespace LinqTraining_Answer
             await _setupFixture.GenerateData(_context);
 
             // Act
-            var result = _logger.StopWatch(() => Exercise1_Act1(_context, "MetadataCode001"));
-            result = await _logger.StopWatch(() => Exercise1_Act2(_context, "MetadataCode001")).ToListAsync();
+            var results = new[]
+            {
+                _logger.StopWatch(() => Exercises.Exercise1_Act(_context, "MetadataCode001")),
+                _logger.StopWatch(() => Exercise1_Act1(_context, "MetadataCode001")),
+                await _logger.StopWatch(() => Exercise1_Act2(_context, "MetadataCode001")).ToListAsync(),
+                await _logger.StopWatch(() => Exercise1_Act3(_context, "MetadataCode001")).ToListAsync(),
+                await _logger.StopWatch(() => Exercise1_Act4(_context, "MetadataCode001")).ToListAsync()
+            };
 
             // Assert
-            Assert.Equal(1000, result.Count);
-            Assert.All(result.Zip(Enumerable.Range(1, result.Count)),
-                x => Assert.Equal((x.Second * 100).ToString(), x.First.Value));
+            foreach (var result in results)
+            {
+                Assert.Equal(1000, result.Count);
+                Assert.All(
+                    result.Select((x, idx) => new { x.Value, idx }),
+                    x => Assert.Equal(((x.idx + 1) * 100).ToString(), x.Value));
+            }
         }
 
         /// <remarks>
         /// ループを記述しないようにリファクタリング
         /// </remarks>
-        public static List<Exercise1Result> Exercise1_Act1(TrainingContext context, string metadataCode)
+        private static List<Exercise1Result> Exercise1_Act1(TrainingContext context, string metadataCode)
         {
             return context.DataValues
                 .Include(x => x.Metadata)
@@ -78,13 +88,28 @@ namespace LinqTraining_Answer
                 });
         }
         
-        /// <remarks>
-        /// Joinで書き直し
-        /// </remarks>
+        /// <summary>
+        /// クエリ式表現で書き直し。Exercise1_Act2と全く同じものです。
+        /// </summary>
         private static IQueryable<Exercise1Result> Exercise1_Act3(TrainingContext context, string metadataCode)
         {
             return from dv in context.DataValues
+                where dv.Metadata.Code == metadataCode
+                select new Exercise1Result
+                {
+                    DataType = dv.Metadata.DataType,
+                    Value = dv.Value
+                };
+        }
+        
+        /// <remarks>
+        /// Joinで書き直し
+        /// </remarks>
+        private static IQueryable<Exercise1Result> Exercise1_Act4(TrainingContext context, string metadataCode)
+        {
+            return from dv in context.DataValues
                 join m in context.Metadata on dv.MetadataId equals m.Id
+                where dv.Metadata.Code == metadataCode
                 select new Exercise1Result
                 {
                     DataType = m.DataType,
