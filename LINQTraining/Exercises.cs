@@ -109,7 +109,7 @@ namespace LINQTraining
         /// ・Multiple Iterationを解消してください。
         /// ・dataTableとerrorsListの行数を増やすと、増やした分だけの時間がかかるのではなく、それ以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）なぜこのようになるのか考えて、これを解消してください。
         /// </remarks>
-        private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> errorsList)
+        public static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> errorsList)
         {
             foreach (var row in dataTable.Rows.OfType<DataRow>())
             {
@@ -223,7 +223,7 @@ namespace LINQTraining
         /// Mappingsテーブルの行数が多いと、このメソッドの実行にはとても時間がかかります。
         /// 遅い理由を説明し、10万行でも1秒以内に完了するように改善してください。
         /// </remarks>
-        private static async Task<Exercise5Result> Exercise5_Act(TrainingContext context)
+        public static async Task<Exercise5Result> Exercise5_Act(TrainingContext context)
         {
             var codes = new List<string>();
             var duplicatedCodes = new List<string>();
@@ -275,7 +275,7 @@ namespace LINQTraining
         /// ・modelsがIQueryableになるように修正してください。
         /// ・それぞれ実行されるSQLの違いについて説明してください。
         /// </remarks>
-        private static IQueryable<Exercise6Result> Exercise6_Act(
+        public static IQueryable<Exercise6Result> Exercise6_Act(
             TrainingContext context, IEnumerable<string> metadataCodes)
         {
             return from av in context.DataValues.Include(x => x.Metadata)
@@ -301,7 +301,7 @@ namespace LINQTraining
             // Assert
         }
 
-        private static IEnumerable<Exercise7Result> Exercise7_Act(TrainingContext context, string dataCategoryCode)
+        public static IEnumerable<Exercise7Result> Exercise7_Act(TrainingContext context, string dataCategoryCode)
         {
             var results = new List<Exercise7Result>();
             foreach (var dataCategory in context.DataCategory.Where(x => x.Code == dataCategoryCode))
@@ -345,7 +345,7 @@ namespace LINQTraining
             Assert.All(columnValues, columnValue => Assert.Equal("ColumnValue012", columnValue));
         }
 
-        private static IQueryable<string> Exercise8_Act(TrainingContext context, Metadata metadata)
+        public static IQueryable<string> Exercise8_Act(TrainingContext context, Metadata metadata)
         {
             return context.DataValues
                 .Where(x => x.MetadataId == metadata.Id)
@@ -370,7 +370,7 @@ namespace LINQTraining
             Assert.Equal(expected, await result.OrderBy(x => x).ToListAsync());
         }
 
-        private static IQueryable<string> Exercise9_Act(TrainingContext context, DataValue dataValue)
+        public static IQueryable<string> Exercise9_Act(TrainingContext context, DataValue dataValue)
         {
             switch (dataValue.Metadata.CandidateList)
             {
@@ -399,14 +399,14 @@ namespace LINQTraining
 
     public class Exercise5Result
     {
-        public Exercise5Result(List<string> codes, List<string> duplicatedCodes)
+        public Exercise5Result(ICollection<string> codes, ICollection<string> duplicatedCodes)
         {
             Codes = codes;
             DuplicatedCodes = duplicatedCodes;
         }
 
-        public List<string> Codes { get; }
-        public List<string> DuplicatedCodes { get; }
+        public ICollection<string> Codes { get; }
+        public ICollection<string> DuplicatedCodes { get; }
     }
 
     public class Exercise6Result

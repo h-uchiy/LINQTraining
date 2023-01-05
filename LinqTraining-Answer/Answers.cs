@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using LINQTraining;
 using LINQTraining.Models;
@@ -42,9 +44,9 @@ namespace LinqTraining_Answer
             {
                 _logger.StopWatch(() => Exercises.Exercise1_Act(_context, "MetadataCode001")),
                 _logger.StopWatch(() => Exercise1_Act1(_context, "MetadataCode001")),
-                await _logger.StopWatch(() => Exercise1_Act2(_context, "MetadataCode001")).ToListAsync(),
-                await _logger.StopWatch(() => Exercise1_Act3(_context, "MetadataCode001")).ToListAsync(),
-                await _logger.StopWatch(() => Exercise1_Act4(_context, "MetadataCode001")).ToListAsync()
+                await _logger.StopWatchAsync(() => Exercise1_Act2(_context, "MetadataCode001").ToListAsync(CancellationToken.None)),
+                await _logger.StopWatchAsync(() => Exercise1_Act3(_context, "MetadataCode001").ToListAsync(CancellationToken.None)),
+                await _logger.StopWatchAsync(() => Exercise1_Act4(_context, "MetadataCode001").ToListAsync(CancellationToken.None))
             };
 
             // Assert
@@ -122,11 +124,10 @@ namespace LinqTraining_Answer
         /// </summary>
         /// <param name="rowCount">Exercise2_Actに与えるdataTableとerrorsListの行数。（dataTableのすべての行にエラーが発生しているという想定）</param>
         [Theory]
-        // [InlineData(1000)]
-        [InlineData(1000)]
-        [InlineData(2000)]
-        [InlineData(10000)]
-        public void Exercise2(int rowCount)
+        [InlineData(1000, 1)]
+        [InlineData(2000, 2)]
+        [InlineData(10000, 3)]
+        public void Exercise2(int rowCount, int act)
         {
             // Arrange
             var (dataTable, errorsList) = _setupFixture.Exercise2(rowCount);
@@ -137,8 +138,18 @@ namespace LinqTraining_Answer
             });
 
             // Act
-            _logger.StopWatch(() => Exercise2_Act1(dataTable, errorsList));
-            _logger.StopWatch(() => Exercise2_Act2(dataTable, errorsList));
+            switch (act)
+            {
+                case 1:
+                    _logger.StopWatch(() => Exercises.Exercise2_Act(dataTable, errorsList));
+                    break;
+                case 2:
+                    _logger.StopWatch(() => Exercise2_Act1(dataTable, errorsList));
+                    break;
+                case 3:
+                    _logger.StopWatch(() => Exercise2_Act2(dataTable, errorsList));
+                    break;
+            }
 
             // Assert
             var expectedErrorInfos = from error in errorsList
@@ -179,137 +190,36 @@ namespace LinqTraining_Answer
         }
 
         /// <summary>
-        /// CodeAとCodeBの組み合わせが格納されたテーブルMappingsをインポートします。
-        /// ・コードの組み合わせは[Code1][SPACE][Code2]とします。（Codeには空白が含まれない）
-        /// ・重複する組み合わせをduplicatedCodesに格納します。
-        /// ・uniqueとなる組み合わせをcodesに格納します。
+        /// 例題5
         /// </summary>
-        /// <remarks>
-        /// ・Mappingsテーブルの行数(size)が大きい場合、このメソッドの実行にはとても時間がかかります。
-        /// 　遅い理由を説明し、size=10万の場合でも1秒以内でで完了するように改善してください。
-        /// </remarks>
         [Theory]
         [InlineData(1000)]
         // [InlineData(100000)]
-        public async Task Exercise3(int size)
+        public async Task Exercise5(int size)
         {
             // Arrange
             await _setupFixture.GenerateMappings(_context, size);
 
             // Act
-            var (codes, duplicatedCodes) = await Exercise3_Act1(_context);
-            // var (codes, duplicatedCodes) = Answers.Exercise3_Act2(_context);
-
-            // Assert
-            Assert.Equal(Enumerable.Distinct<string>(codes).Count(), Enumerable.Count<string>(codes));
-            Assert.Equal(Enumerable.Distinct<string>(duplicatedCodes).Count(), Enumerable.Count<string>(duplicatedCodes));
-        }
-
-        private static async Task<(ICollection<string> codes, ICollection<string> duplicatedCodes)> Exercise3_Act(TrainingContext context)
-        {
-            var codes = new List<string>();
-            var duplicatedCodes = new List<string>();
-            await foreach (var map in context.Mappings.AsAsyncEnumerable())
+            var results = new[]
             {
-                var key = map.CodeA + " " + map.CodeB;
-                if (codes.Any(x => x == key))
-                {
-                    if (duplicatedCodes.All(x => x != key))
-                    {
-                        duplicatedCodes.Add(key);
-                    }
-                }
-                else
-                {
-                    codes.Add(key);
-                }
-            }
-
-            return (codes, duplicatedCodes);
-        }
-
-        /// <summary>
-        /// 複数のAttributeに対するAttributeValueの値を取得します。
-        /// 対象となるAttributeのCodeは動的に決定するものとします。
-        /// </summary>
-        /// <remarks>
-        /// ・このコードはコンパイルは通りますが動作しません。動作しない理由を説明してください。
-        /// ・上記のエラーを修正して動作するようにしてください。modelsはIEnumerableでも構いません。
-        /// ・modelsがIQueryableになるように修正してください。
-        /// ・それぞれ実行されるSQLの違いについて説明してください。
-        /// </remarks>
-        [Fact]
-        public async Task Exercise4()
-        {
-            // Arrange
-            await _setupFixture.GenerateData(_context);
-            var metadataCodes = _setupFixture.GetSomeMetadataCodes();
-
-            // Act
-            var models = await Exercise4_Act1(_context, metadataCodes);
-            // var models = Answers.Exercise4_Act2(_context, metadataCodes);
+                await _logger.StopWatch(() => Exercises.Exercise5_Act(_context)),
+                await _logger.StopWatch(() => Exercise5_Act1(_context)),
+                await _logger.StopWatch(() => Exercise5_Act2(_context)),
+            };
 
             // Assert
-            Assert.All(metadataCodes, code =>
-                Assert.Throws<InvalidOperationException>(() =>
-                    Assert.Contains<Exercise6Result>(models, x => x.MetadataCode == code)
-                ));
-        }
-
-        private static IQueryable<Exercise6Result> Exercise4_Act(TrainingContext context, IEnumerable<string> metadataCodes)
-        {
-            return from av in context.DataValues
-                    .Include(x => x.Metadata)
-                join ac in metadataCodes on av.Metadata.Code equals ac
-                select new Exercise6Result { MetadataCode = av.Metadata.Code, Value = av.Value };
-        }
-
-        [Fact]
-        public async Task Exercise5()
-        {
-            // Arrange
-            await _setupFixture.GenerateData(_context);
-            var metadataCodes = _setupFixture.GetDataCategoryCode();
-
-            // Act
-            var models = Exercise5_Act1(_context, metadataCodes);
-
-            // Assert
-        }
-
-        private static IEnumerable<Exercise7Result> Exercise5_Act(TrainingContext context, string dataCategoryCodes)
-        {
-            var results = new List<Exercise7Result>();
-            foreach (var dataCategory in context.DataCategory.Where(x => x.Code == dataCategoryCodes))
+            foreach (var result in results)
             {
-                if (dataCategory.MetadataDataCategory.Any())
-                {
-                    foreach (var metadataDataCategory in dataCategory.MetadataDataCategory)
-                    {
-                        results.Add(new Exercise7Result
-                        {
-                            DataCategoryName = dataCategory.Name,
-                            MetadataName = metadataDataCategory.Metadata.Name,
-                        });
-                    }
-                }
-                else
-                {
-                    results.Add(new Exercise7Result
-                    {
-                        DataCategoryName = dataCategory.Name,
-                        MetadataName = null,
-                    });
-                }
+                Assert.Equal(result.Codes.Distinct().Count(), result.Codes.Count());
+                Assert.Equal(result.DuplicatedCodes.Distinct().Count(), result.DuplicatedCodes.Count());
             }
-
-            return results;
         }
 
         /// <summary>
         /// 元のコードをあまり変更せずに性能のみ改善した例
         /// </summary>
-        public static async Task<(ICollection<string> codeList, ICollection<string> duplicatedCodes)> Exercise3_Act1(TrainingContext context)
+        public static async Task<Exercise5Result> Exercise5_Act1(TrainingContext context)
         {
             var codeList = new HashSet<string>();
             var duplicateCodeList = new HashSet<string>();
@@ -329,13 +239,13 @@ namespace LinqTraining_Answer
                 }
             }
 
-            return (codeList, duplicateCodeList);
+            return new Exercise5Result(codeList, duplicateCodeList);
         }
 
         /// <summary>
         /// 宣言的な記述に置き換えて、サーバー側で処理を完結させた例
         /// </summary>
-        public static (IQueryable<string> codeList, IQueryable<string> duplicatedCodes) Exercise3_Act2(TrainingContext context)
+        public static async Task<Exercise5Result> Exercise5_Act2(TrainingContext context)
         {
             var keys = context.Mappings.Select(map => map.CodeA + " " + map.CodeB);
             var codeList = keys.Distinct();
@@ -344,14 +254,39 @@ namespace LinqTraining_Answer
                 into g
                 where g.Count() > 1
                 select g.Key;
-            return (codeList, duplicateCodeList);
+            return new Exercise5Result(await codeList.ToListAsync(), await duplicateCodeList.ToListAsync());
+        }
+
+        /// <summary>
+        /// 例題6
+        /// </summary>
+        [Fact]
+        public async Task Exercise6()
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var metadataCodes = _setupFixture.GetSomeMetadataCodes();
+
+            // Act
+            var results = new[]
+            {
+                // Exercises.Exercise6_Act(_context, metadataCodes), // this does not work
+                await Exercise6_Act1(_context, metadataCodes),
+                await Exercise6_Act2(_context, metadataCodes).ToListAsync()
+            };
+
+            // Assert
+            foreach (var result in results)
+            {
+                Assert.All(metadataCodes, code => Assert.Contains(result, x => x.MetadataCode == code));
+            }
         }
 
         /// <summary>
         /// （良くない例）すべてメモリにロードして演算する実装
         /// Includeを使うと必要のないプロパティまで全部ロードされるので効率が良くない
         /// </summary>
-        public static async Task<IEnumerable<Exercise6Result>> Exercise4_Act1(TrainingContext context, IEnumerable<string> metadataCodes)
+        public static async Task<IEnumerable<Exercise6Result>> Exercise6_Act1(TrainingContext context, IEnumerable<string> metadataCodes)
         {
             return from av in await context.DataValues
                     .Include(x => x.Metadata)
@@ -364,7 +299,7 @@ namespace LinqTraining_Answer
         /// DB側ですべて演算を行い、最終的に必要なデータのみをメモリにロードする実装
         /// LINQ to Entityの式の中で参照する分にはIncludeを記述する必要はない
         /// </summary>
-        public static IQueryable<Exercise6Result> Exercise4_Act2(TrainingContext context,
+        public static IQueryable<Exercise6Result> Exercise6_Act2(TrainingContext context,
             ICollection<string> metadataCodes)
         {
             return from av in context.DataValues
@@ -373,10 +308,24 @@ namespace LinqTraining_Answer
                 select new Exercise6Result { MetadataCode = av.Metadata.Code, Value = av.Value };
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public static IQueryable<Exercise7Result> Exercise5_Act1(TrainingContext context, string dataCategoryCodes)
+        [Fact]
+        public async Task Exercise7()
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var metadataCodes = _setupFixture.GetDataCategoryCode();
+
+            // Act
+            var result = new[]
+            {
+                Exercises.Exercise7_Act(_context, metadataCodes),
+                Exercise7_Act1(_context, metadataCodes)
+            };
+
+            // Assert
+        }
+
+        public static IQueryable<Exercise7Result> Exercise7_Act1(TrainingContext context, string dataCategoryCodes)
         {
             return from dataCategory in context.DataCategory
                 where dataCategory.Code == dataCategoryCodes
@@ -386,6 +335,73 @@ namespace LinqTraining_Answer
                     DataCategoryName = dataCategory.Name,
                     MetadataName = metadataDataCategory.Metadata.Name,
                 };
+        }
+
+        [Theory]
+        [InlineData("MetadataCode012")]
+        public async Task Exercise8(string metadataCode)
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var metadata = await _context.Metadata.FirstAsync(x => x.Code == metadataCode);
+            
+            // Act
+            var results = new[]
+            {
+                await Exercises.Exercise8_Act(_context, metadata).ToListAsync(),
+                await Exercise8_Act(_context, metadata).ToListAsync()
+            };
+            
+            // Assert
+            foreach (var result in results)
+            {
+                Assert.All(result, columnValue => Assert.Equal("ColumnValue012", columnValue));
+            }
+        }
+
+        private static IQueryable<string> Exercise8_Act(TrainingContext context, Metadata metadata)
+        {
+            // dataValue => dataValue.[Column{metadata.ColumnIndex:D3}]
+            var dataValueExpr = Expression.Parameter(typeof(string), "dataValue");
+            var selector = Expression.Lambda<Func<DataValue, string>>(
+                Expression.Property(dataValueExpr, $"Column{metadata.ColumnIndex:D3}"),
+                dataValueExpr
+            );
+            
+            return context.DataValues
+                .Where(x => x.MetadataId == metadata.Id)
+                .Select(selector);
+        }
+
+        [Theory]
+        [InlineData(123)]
+        public async Task Exercise9(int dataValueId)
+        {
+            // Arrange
+            await _setupFixture.GenerateData(_context);
+            var dataValue = await _context.DataValues.Include(x => x.Metadata).FirstAsync(x => x.Id == dataValueId);
+            var expected = Enumerable.Range(0, 20).Select(idx => $"{dataValue.Metadata.CandidateList[^1]}{idx}").OrderBy(x => x).ToList();
+            
+            // Act
+            var result = Exercises.Exercise9_Act(_context, dataValue);
+            
+            // Assert
+            Assert.Equal(expected, await result.OrderBy(x => x).ToListAsync());
+        }
+
+        private static IQueryable<string> Exercise9_Act(TrainingContext context, DataValue dataValue)
+        {
+            switch (dataValue.Metadata.CandidateList)
+            {
+                case "CandidateListA":
+                    return context.CandidateListA.Select(x => x.Value);
+                case "CandidateListB":
+                    return context.CandidateListB.Select(x => x.Value);
+                case "CandidateListC":
+                    return context.CandidateListC.Select(x => x.Value);
+                default:
+                    throw new IndexOutOfRangeException();
+            }
         }
         
         public void Dispose()
