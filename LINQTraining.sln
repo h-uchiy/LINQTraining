@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProjectRootItems", "Project
 		global.json = global.json
 		LICENSE = LICENSE
 		README.md = README.md
+		Directory.build.props = Directory.build.props
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinqTraining-Answer", "LinqTraining-Answer\LinqTraining-Answer.csproj", "{00B472EB-8329-4693-AC4F-55193173F76E}"

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -11,13 +12,14 @@ namespace LINQTraining.Utils
     {
         private static ConcurrentDictionary<string, Action<object>> cache = new ConcurrentDictionary<string, Action<object>>();
 
-        public static IEnumerable<TEntity> FillColumn<TEntity>(this IEnumerable<TEntity> entity)
+        public static IEnumerable<TEntity> FillColumn<TEntity>(this IEnumerable<TEntity> entity) where TEntity : notnull
         {
             return entity.Select(x => x.FillColumn());
         }
 
-        public static TEntity FillColumn<TEntity>(this TEntity entity)
+        public static TEntity FillColumn<TEntity>(this TEntity entity) where TEntity : notnull
         {
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             return (TEntity)FillColumnCore(entity);
         }
         

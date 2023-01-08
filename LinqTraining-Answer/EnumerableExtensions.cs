@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+// ReSharper disable UnusedMember.Global
 
 namespace LinqTraining_Answer
 {
@@ -31,7 +32,7 @@ namespace LinqTraining_Answer
 
         public static SortedList<TKey, TSource> ToSortedList<TSource, TKey>(
             this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector)
+            Func<TSource, TKey> keySelector) where TKey : notnull
         {
             return ToSortedList(source, keySelector, element => element, Comparer<TKey>.Default);
         }
@@ -39,7 +40,7 @@ namespace LinqTraining_Answer
         public static SortedList<TKey, TSource> ToSortedList<TSource, TKey>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            IComparer<TKey> comparer)
+            IComparer<TKey> comparer) where TKey : notnull
         {
             return ToSortedList(source, keySelector, element => element, comparer);
         }
@@ -47,7 +48,7 @@ namespace LinqTraining_Answer
         public static SortedList<TKey, TElement> ToSortedList<TSource, TKey, TElement>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            Func<TSource, TElement> elementSelector)
+            Func<TSource, TElement> elementSelector) where TKey : notnull
         {
             return ToSortedList(source, keySelector, elementSelector, Comparer<TKey>.Default);
         }
@@ -56,7 +57,7 @@ namespace LinqTraining_Answer
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
-            IComparer<TKey> comparer)
+            IComparer<TKey> comparer) where TKey : notnull
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
@@ -78,7 +79,7 @@ namespace LinqTraining_Answer
 
         public static SortedDictionary<TKey, TSource> ToSortedDictionary<TSource, TKey>(
             this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector)
+            Func<TSource, TKey> keySelector) where TKey : notnull
         {
             return ToSortedDictionary(source, keySelector, element => element, Comparer<TKey>.Default);
         }
@@ -86,7 +87,7 @@ namespace LinqTraining_Answer
         public static SortedDictionary<TKey, TSource> ToSortedDictionary<TSource, TKey>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            IComparer<TKey> comparer)
+            IComparer<TKey> comparer) where TKey : notnull
         {
             return ToSortedDictionary(source, keySelector, element => element, comparer);
         }
@@ -94,7 +95,7 @@ namespace LinqTraining_Answer
         public static SortedDictionary<TKey, TElement> ToSortedDictionary<TSource, TKey, TElement>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            Func<TSource, TElement> elementSelector)
+            Func<TSource, TElement> elementSelector) where TKey : notnull
         {
             return ToSortedDictionary(source, keySelector, elementSelector, Comparer<TKey>.Default);
         }
@@ -103,7 +104,7 @@ namespace LinqTraining_Answer
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
-            IComparer<TKey> comparer)
+            IComparer<TKey> comparer) where TKey : notnull
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));

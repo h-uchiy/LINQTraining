@@ -87,7 +87,7 @@ dotnet test
 
 ### Microsoft Documentの読み方
 
-日本語は大部分が機械翻訳で、意味不明な訳がされていたり、全く逆の意味に誤訳されていることもあるので、必ず英語を読みます。
+日本語は大部分が機械翻訳なので、意味不明な訳がされていたり、全く逆の意味に誤訳されていることもあるので、必ず英語を読みます。
 とはいえ、頭から英語で読むのもしんどいので、日本語でナナメ読みしてから英語でちゃんと読むのがおすすめです。
 
 * 日本語から英語への切り替えは、![h:40px](image-msdn-toeng-icon.png)をクリックします。
@@ -214,7 +214,10 @@ private static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> er
 ### ヒント
 
 * ReSharper/Riderでは["Multiple Enumeration"](https://www.jetbrains.com/help/rider/PossibleMultipleEnumeration.html)という警告が発生します。これを解消してください。
-* dataTableとerrorsListの行数を増やすと、行数を増やした以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）
+* どこが遅いのか、プロファイラを使って特定してください。
+  * [Visual Studio 2022付属のプロファイラの使い方](https://learn.microsoft.com/en-us/visualstudio/profiling/beginners-guide-to-performance-profiling)
+  * [ReSharper付属のプロファイラの使い方](https://www.jetbrains.com/help/profiler/Profiling_Guidelines__Profiling_Unit_Tests.html)
+* dataTableとerrorsListの行数を増やすと、行数を増やした以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍。指数関数的に遅くなる）
 なぜこのようになるのか考えて、これを解消してください。
 
 ---
@@ -304,12 +307,12 @@ LINQ to Entityの制約を学ぶ問題です。
 private static IQueryable<Exercise6Result> Exercise6_Act(
     TrainingContext context, IEnumerable<string> metadataCodes)
 {
-    return from av in context.DataValues.Include(x => x.Metadata)
-        join ac in metadataCodes on av.Metadata.Code equals ac
+    return from dv in context.DataValues.Include(x => x.Metadata)
+        join mc in metadataCodes on dv.Metadata.Code equals mc
         select new Exercise6Result
         {
-            MetadataCode = av.Metadata.Code,
-            Value = av.Value
+            MetadataCode = dv.Metadata.Code,
+            Value = dv.Value
         };
 }
 ```

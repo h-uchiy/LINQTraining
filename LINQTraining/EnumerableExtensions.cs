@@ -28,7 +28,7 @@ namespace LINQTraining
 
         public static SortedList<TKey, TSource> ToSortedList<TSource, TKey>(
             this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector)
+            Func<TSource, TKey> keySelector) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -36,7 +36,7 @@ namespace LINQTraining
         public static SortedList<TKey, TSource> ToSortedList<TSource, TKey>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            IComparer<TKey> comparer)
+            IComparer<TKey> comparer) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -44,7 +44,7 @@ namespace LINQTraining
         public static SortedList<TKey, TElement> ToSortedList<TSource, TKey, TElement>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            Func<TSource, TElement> elementSelector)
+            Func<TSource, TElement> elementSelector) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -53,7 +53,7 @@ namespace LINQTraining
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
-            IComparer<TKey> comparer)
+            IComparer<TKey> comparer) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -64,7 +64,7 @@ namespace LINQTraining
 
         public static SortedDictionary<TKey, TSource> ToSortedDictionary<TSource, TKey>(
             this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector)
+            Func<TSource, TKey> keySelector) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -72,7 +72,7 @@ namespace LINQTraining
         public static SortedDictionary<TKey, TSource> ToSortedDictionary<TSource, TKey>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            IComparer<TKey> comparer)
+            IComparer<TKey> comparer) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -80,7 +80,7 @@ namespace LINQTraining
         public static SortedDictionary<TKey, TElement> ToSortedDictionary<TSource, TKey, TElement>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            Func<TSource, TElement> elementSelector)
+            Func<TSource, TElement> elementSelector) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -89,7 +89,7 @@ namespace LINQTraining
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
-            IComparer<TKey> comparer)
+            IComparer<TKey> comparer) where TKey : notnull
         {
             throw new NotImplementedException();
         }

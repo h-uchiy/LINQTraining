@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+// ReSharper disable UnusedMember.Global
 
 namespace LinqTraining_Answer
 {
@@ -41,16 +44,17 @@ namespace LinqTraining_Answer
         public static Task<SortedList<TKey, TSource>> ToSortedListAsync<TSource, TKey>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
-            return ToSortedListAsync(source, keySelector, element => element, Comparer<TKey>.Default, cancellationToken);
+            return ToSortedListAsync(source, keySelector, element => element, Comparer<TKey>.Default,
+                cancellationToken);
         }
 
         public static Task<SortedList<TKey, TSource>> ToSortedListAsync<TSource, TKey>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
             IComparer<TKey> comparer,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             return ToSortedListAsync(source, keySelector, element => element, comparer, cancellationToken);
         }
@@ -59,23 +63,23 @@ namespace LinqTraining_Answer
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             return ToSortedListAsync(source, keySelector, elementSelector, Comparer<TKey>.Default, cancellationToken);
         }
-        
+
         public static async Task<SortedList<TKey, TElement>> ToSortedListAsync<TSource, TKey, TElement>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
             IComparer<TKey> comparer,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
             if (elementSelector == null) throw new ArgumentNullException(nameof(elementSelector));
             if (comparer == null) throw new ArgumentNullException(nameof(comparer));
-            
+
             var d = new SortedList<TKey, TElement>(comparer);
             await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken))
             {
@@ -92,7 +96,7 @@ namespace LinqTraining_Answer
         public static Task<SortedDictionary<TKey, TSource>> ToSortedDictionaryAsync<TSource, TKey>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             return ToSortedDictionaryAsync(source, keySelector, e => e, Comparer<TKey>.Default, cancellationToken);
         }
@@ -101,7 +105,7 @@ namespace LinqTraining_Answer
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
             IComparer<TKey> comparer,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             return ToSortedDictionaryAsync(source, keySelector, e => e, comparer, cancellationToken);
         }
@@ -110,9 +114,9 @@ namespace LinqTraining_Answer
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
-            return ToSortedDictionaryAsync(source, keySelector, elementSelector, comparer: null, cancellationToken);
+            return ToSortedDictionaryAsync(source, keySelector, elementSelector, Comparer<TKey>.Default, cancellationToken);
         }
 
         public static async Task<SortedDictionary<TKey, TElement>> ToSortedDictionaryAsync<TSource, TKey, TElement>(
@@ -120,7 +124,7 @@ namespace LinqTraining_Answer
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
             IComparer<TKey> comparer,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
@@ -137,29 +141,5 @@ namespace LinqTraining_Answer
         }
 
         #endregion
-        
-        #region DistinctBy
-
-        public static IQueryable<TSource> DistinctBy<TKey, TSource>(
-            this IQueryable<TSource> source,
-            Func<TSource, TKey> keySelector)
-        {
-            throw new NotImplementedException();
-        }
-        
-        public static IQueryable<TSource> DistinctBy<TKey, TSource>(
-            this IQueryable<TSource> source,
-            Func<TSource, TKey> keySelector,
-            IEqualityComparer<TKey> comparer)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        public static IQueryable<TSource[]> Chunk<TSource>(this IQueryable<TSource> source, int size)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

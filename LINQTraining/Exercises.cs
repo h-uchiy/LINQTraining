@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LINQTraining.Models;
 using LINQTraining.Utils;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Xunit.Abstractions;
+
+[assembly:InternalsVisibleTo("LINQTraining-Answer")]
 
 namespace LINQTraining
 {
@@ -49,24 +53,17 @@ namespace LINQTraining
         /// <summary>
         /// DataValues.Metadata.Code == metadataCode となるDataValuesから、DataTypeとValueを取得します。
         /// </summary>
-        public static List<Exercise1Result> Exercise1_Act(TrainingContext context, string metadataCode)
-        {
-            var dataValues = context.DataValues
+        internal static List<Exercise1Result> Exercise1_Act(TrainingContext context, string metadataCode) =>
+            context.DataValues
                 .Include(x => x.Metadata)
-                .Where(x => x.Metadata.Code == metadataCode);
-
-            var result = new List<Exercise1Result>();
-            foreach (var dataValue in dataValues.ToList())
-            {
-                result.Add(new Exercise1Result
+                .Where(x => x.Metadata.Code == metadataCode)
+                .ToList()
+                .Select(dataValue => new Exercise1Result
                 {
                     DataType = dataValue.Metadata.DataType,
                     Value = dataValue.Value
-                });
-            }
-
-            return result;
-        }
+                })
+                .ToList();
 
         /// <summary>
         /// 演習2
@@ -93,7 +90,8 @@ namespace LINQTraining
                 group error by error.RowNo
                 into g
                 select new { RowNo = g.Key, ColumnName = string.Join(",", g.Select(y => y.ColumnName)) };
-            Assert.All(expectedErrorInfos, errorInfo => Assert.Equal(errorInfo.ColumnName, dataTable.Rows[errorInfo.RowNo - 1]["Error Column"]));
+            Assert.All(expectedErrorInfos,
+                errorInfo => Assert.Equal(errorInfo.ColumnName, dataTable.Rows[errorInfo.RowNo - 1]["Error Column"]));
         }
 
         /// <summary>
@@ -109,7 +107,7 @@ namespace LINQTraining
         /// ・Multiple Iterationを解消してください。
         /// ・dataTableとerrorsListの行数を増やすと、増やした分だけの時間がかかるのではなく、それ以上に遅くなります。（概ね2倍にすると4倍、10倍にすると100倍）なぜこのようになるのか考えて、これを解消してください。
         /// </remarks>
-        public static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> errorsList)
+        internal static void Exercise2_Act(DataTable dataTable, IEnumerable<ErrorInfo> errorsList)
         {
             foreach (var row in dataTable.Rows.OfType<DataRow>())
             {
@@ -133,7 +131,7 @@ namespace LINQTraining
             // Arrange
             await _setupFixture.GenerateData(_context);
             var src = await _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType }).ToListAsync();
-            
+
             // Act & Assert
             Assert.Throws<NotImplementedException>(() => src.ToSortedSet());
         }
@@ -144,7 +142,7 @@ namespace LINQTraining
             // Arrange
             await _setupFixture.GenerateData(_context);
             var src = _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType });
-            
+
             // Act & Assert
             await Assert.ThrowsAsync<NotImplementedException>(() => src.ToSortedSetAsync());
         }
@@ -155,7 +153,7 @@ namespace LINQTraining
             // Arrange
             await _setupFixture.GenerateData(_context);
             var src = await _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType }).ToListAsync();
-            
+
             // Act & Assert
             Assert.Throws<NotImplementedException>(() => src.ToSortedList(x => x.Code));
         }
@@ -166,29 +164,55 @@ namespace LINQTraining
             // Arrange
             await _setupFixture.GenerateData(_context);
             var src = _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType });
-            
+
             // Act & Assert
             await Assert.ThrowsAsync<NotImplementedException>(() => src.ToSortedListAsync(x => x.Code));
         }
 
         [Fact]
-        public async Task Exercise4_DistinctBy()
+        public void Exercise4_DistinctBy()
         {
             // Arrange
-            await _setupFixture.GenerateData(_context);
-            var src = _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType });
-            
+            var src = new[]
+            {
+                new { Key = 1, Value = "a" },
+                new { Key = 0, Value = "b" },
+                new { Key = 3, Value = "c" },
+                new { Key = 6, Value = "d" },
+                new { Key = 4, Value = "e" },
+                new { Key = 3, Value = "f" },
+                new { Key = 2, Value = "g" },
+                new { Key = 9, Value = "h" },
+                new { Key = 4, Value = "i" },
+                new { Key = 8, Value = "j" },
+                new { Key = 7, Value = "k" },
+                new { Key = 8, Value = "l" },
+                new { Key = 5, Value = "m" },
+            };
+            var expected = new[]
+            {
+                new { Key = 1, Value = "a" },
+                new { Key = 0, Value = "b" },
+                new { Key = 3, Value = "c" },
+                new { Key = 6, Value = "d" },
+                new { Key = 4, Value = "e" },
+                new { Key = 2, Value = "g" },
+                new { Key = 9, Value = "h" },
+                new { Key = 8, Value = "j" },
+                new { Key = 7, Value = "k" },
+                new { Key = 5, Value = "m" },
+            };
+
             // Act & Assert
-            Assert.Throws<NotImplementedException>(() => src.DistinctBy(x => x.Code));
+            Assert.Throws<NotImplementedException>(() => src.DistinctBy(x => x.Key));
         }
 
         [Fact]
-        public async Task Exercise4_Chunk()
+        public void Exercise4_Chunk()
         {
             // Arrange
-            await _setupFixture.GenerateData(_context);
-            var src = _context.Metadata.Select(x => new { x.Code, x.Name, x.DataType });
-            
+            var src = Enumerable.Range(1, 100);
+
             // Act & Assert
             Assert.Throws<NotImplementedException>(() => src.Chunk(30));
         }
@@ -223,7 +247,7 @@ namespace LINQTraining
         /// Mappingsテーブルの行数が多いと、このメソッドの実行にはとても時間がかかります。
         /// 遅い理由を説明し、10万行でも1秒以内に完了するように改善してください。
         /// </remarks>
-        public static async Task<Exercise5Result> Exercise5_Act(TrainingContext context)
+        internal static async Task<Exercise5Result> Exercise5_Act(TrainingContext context)
         {
             var codes = new List<string>();
             var duplicatedCodes = new List<string>();
@@ -278,12 +302,12 @@ namespace LINQTraining
         public static IQueryable<Exercise6Result> Exercise6_Act(
             TrainingContext context, IEnumerable<string> metadataCodes)
         {
-            return from av in context.DataValues.Include(x => x.Metadata)
-                join ac in metadataCodes on av.Metadata.Code equals ac
+            return from dv in context.DataValues.Include(x => x.Metadata)
+                join mc in metadataCodes on dv.Metadata.Code equals mc
                 select new Exercise6Result
                 {
-                    MetadataCode = av.Metadata.Code,
-                    Value = av.Value
+                    MetadataCode = dv.Metadata.Code,
+                    Value = dv.Value
                 };
         }
 
@@ -301,7 +325,7 @@ namespace LINQTraining
             // Assert
         }
 
-        public static IEnumerable<Exercise7Result> Exercise7_Act(TrainingContext context, string dataCategoryCode)
+        internal static IEnumerable<Exercise7Result> Exercise7_Act(TrainingContext context, string dataCategoryCode)
         {
             var results = new List<Exercise7Result>();
             foreach (var dataCategory in context.DataCategory.Where(x => x.Code == dataCategoryCode))
@@ -337,21 +361,20 @@ namespace LINQTraining
             // Arrange
             await _setupFixture.GenerateData(_context);
             var metadata = await _context.Metadata.FirstAsync(x => x.Code == metadataCode);
-            
+
             // Act
             var columnValues = await Exercise8_Act(_context, metadata).ToListAsync();
-            
+
             // Assert
             Assert.All(columnValues, columnValue => Assert.Equal("ColumnValue012", columnValue));
         }
 
-        public static IQueryable<string> Exercise8_Act(TrainingContext context, Metadata metadata)
+        internal static IQueryable<string> Exercise8_Act(TrainingContext context, Metadata metadata)
         {
             return context.DataValues
                 .Where(x => x.MetadataId == metadata.Id)
                 .Select(x => (string)typeof(DataValue)
-                    .GetProperty($"Column{metadata.ColumnIndex:D3}")
-                    .GetValue(x));
+                    .GetProperty($"Column{metadata.ColumnIndex:D3}")!.GetValue(x)!);
         }
 
         [Theory]
@@ -361,16 +384,19 @@ namespace LINQTraining
             // Arrange
             await _setupFixture.GenerateData(_context);
             var dataValue = await _context.DataValues.Include(x => x.Metadata).FirstAsync(x => x.Id == dataValueId);
-            var expected = Enumerable.Range(0, 20).Select(idx => $"{dataValue.Metadata.CandidateList[^1]}{idx}").OrderBy(x => x).ToList();
-            
+            var expected = Enumerable.Range(0, 20)
+                .Select(idx => $"{dataValue.Metadata.CandidateList[^1]}{idx}")
+                .OrderBy(x => x)
+                .ToList();
+
             // Act
             var result = Exercise9_Act(_context, dataValue);
-            
+
             // Assert
             Assert.Equal(expected, await result.OrderBy(x => x).ToListAsync());
         }
 
-        public static IQueryable<string> Exercise9_Act(TrainingContext context, DataValue dataValue)
+        internal static IQueryable<string> Exercise9_Act(TrainingContext context, DataValue dataValue)
         {
             switch (dataValue.Metadata.CandidateList)
             {
@@ -393,8 +419,27 @@ namespace LINQTraining
 
     public class Exercise1Result
     {
+        private sealed class Exercise1ResultEqualityComparer : IEqualityComparer<Exercise1Result>
+        {
+            public bool Equals(Exercise1Result? x, Exercise1Result? y)
+            {
+                if (ReferenceEquals(x, y)) return true;
+                if (ReferenceEquals(x, null)) return false;
+                if (ReferenceEquals(y, null)) return false;
+                if (x.GetType() != y.GetType()) return false;
+                return x.DataType == y.DataType && x.Value == y.Value;
+            }
+
+            public int GetHashCode(Exercise1Result obj)
+            {
+                return HashCode.Combine((int)obj.DataType, obj.Value);
+            }
+        }
+
+        public static IEqualityComparer<Exercise1Result> Comparer { get; } = new Exercise1ResultEqualityComparer();
+
         public DataType DataType { get; set; }
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     public class Exercise5Result
@@ -411,19 +456,57 @@ namespace LINQTraining
 
     public class Exercise6Result
     {
-        public string MetadataCode { get; set; }
-        public string Value { get; set; }
+        private sealed class Exercise6ResultEqualityComparer : IEqualityComparer<Exercise6Result>
+        {
+            public bool Equals(Exercise6Result? x, Exercise6Result? y)
+            {
+                if (ReferenceEquals(x, y)) return true;
+                if (ReferenceEquals(x, null)) return false;
+                if (ReferenceEquals(y, null)) return false;
+                if (x.GetType() != y.GetType()) return false;
+                return x.MetadataCode == y.MetadataCode && x.Value == y.Value;
+            }
+
+            public int GetHashCode(Exercise6Result obj)
+            {
+                return HashCode.Combine(obj.MetadataCode, obj.Value);
+            }
+        }
+
+        public static IEqualityComparer<Exercise6Result> Comparer { get; } = new Exercise6ResultEqualityComparer();
+
+        public string? MetadataCode { get; set; }
+        public string? Value { get; set; }
     }
 
     public class Exercise7Result
     {
-        public string DataCategoryName { get; set; }
-        public string MetadataName { get; set; }
+        private sealed class Exercise7ResultEqualityComparer : IEqualityComparer<Exercise7Result>
+        {
+            public bool Equals(Exercise7Result? x, Exercise7Result? y)
+            {
+                if (ReferenceEquals(x, y)) return true;
+                if (ReferenceEquals(x, null)) return false;
+                if (ReferenceEquals(y, null)) return false;
+                if (x.GetType() != y.GetType()) return false;
+                return x.DataCategoryName == y.DataCategoryName && x.MetadataName == y.MetadataName;
+            }
+
+            public int GetHashCode(Exercise7Result obj)
+            {
+                return HashCode.Combine(obj.DataCategoryName, obj.MetadataName);
+            }
+        }
+
+        public static IEqualityComparer<Exercise7Result> Comparer { get; } = new Exercise7ResultEqualityComparer();
+
+        public string? DataCategoryName { get; set; }
+        public string? MetadataName { get; set; }
     }
 
     public class ErrorInfo
     {
         public int RowNo { get; set; }
-        public string ColumnName { get; set; }
+        public string? ColumnName { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+// ReSharper disable UnusedMember.Global
 
 namespace LINQTraining
 {
@@ -35,7 +36,7 @@ namespace LINQTraining
         public static Task<SortedList<TKey, TSource>> ToSortedListAsync<TSource, TKey>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -44,7 +45,7 @@ namespace LINQTraining
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
             IComparer<TKey> comparer,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -53,7 +54,7 @@ namespace LINQTraining
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -63,7 +64,7 @@ namespace LINQTraining
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
             IComparer<TKey> comparer,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -75,7 +76,7 @@ namespace LINQTraining
         public static Task<SortedDictionary<TKey, TSource>> ToSortedDictionaryAsync<TSource, TKey>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -84,7 +85,7 @@ namespace LINQTraining
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
             IComparer<TKey> comparer,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -93,7 +94,7 @@ namespace LINQTraining
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             throw new NotImplementedException();
         }
@@ -103,35 +104,11 @@ namespace LINQTraining
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
             IComparer<TKey> comparer,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) where TKey : notnull
         {
             throw new NotImplementedException();
         }
 
         #endregion
-        
-        #region DistinctBy
-
-        public static IQueryable<TSource> DistinctBy<TKey, TSource>(
-            this IQueryable<TSource> source,
-            Func<TSource, TKey> keySelector)
-        {
-            throw new NotImplementedException();
-        }
-        
-        public static IQueryable<TSource> DistinctBy<TKey, TSource>(
-            this IQueryable<TSource> source,
-            Func<TSource, TKey> keySelector,
-            IEqualityComparer<TKey> comparer)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        public static IQueryable<TSource[]> Chunk<TSource>(this IQueryable<TSource> source, int size)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+#nullable disable
+
 namespace LINQTraining.Models
 {
     public class TrainingContext : DbContext

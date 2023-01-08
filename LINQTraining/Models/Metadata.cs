@@ -1,5 +1,6 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+#nullable disable
 
 namespace LINQTraining.Models
 {
