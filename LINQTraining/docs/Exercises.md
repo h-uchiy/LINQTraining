@@ -19,10 +19,10 @@ paginate: true
 
 ## 準備
 
-* このテキストを読み、わからない言葉などを調べておく
 * [環境](#環境)と[ビルド](#ビルド)の項目に従い、演習プログラムのビルドを通しておく
 * LINQに馴染みの少ない方は勉強しておく
 [［完全版］究極のC#プログラミング Chapter15 LINQとクエリ式](https://atmarkit.itmedia.co.jp/fdotnet/csharp30/index/index.html)
+* できればこのテキストを読み、わからない言葉などを調べておく
 
 ---
 
@@ -33,7 +33,7 @@ paginate: true
 ### ないと動かないもの
 
 * [.NET Core 3.1 SDK 3.1.425](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) Version 3.1.31
-* [EF Core command-line tools](https://learn.microsoft.com/en-us/ef/core/cli/dotnet) Version 3.1.31
+* [EF Core command-line tools](https://learn.microsoft.com/en-us/ef/core/cli/dotnet)
 
 ### あると便利なもの
 

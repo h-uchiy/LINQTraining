@@ -22,12 +22,16 @@ Code samples for LINQ to Object / LINQ to Entity training.
 ### Installing / Executing program
 
 * download or clone this source code
-* run this command at `LINQTraining.csproj` existing folder
+* run following commands at `LINQTraining.csproj` existing folder
 
 ```bat
-dotnet tool install --version 3.1.31 --global dotnet-ef
+dotnet tool install --global dotnet-ef
+cd C:\path\to\LINQTraining\LINQTraining
 dotnet ef migrations add InitialCreate
+dotnet ef database drop
 dotnet ef database update
+dotnet build
+dotnet test
 ```
 
 Code samples are implemented as xUnit tests.
