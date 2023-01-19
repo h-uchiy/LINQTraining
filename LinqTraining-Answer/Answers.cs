@@ -461,6 +461,13 @@ namespace LinqTraining_Answer
 
         public static IQueryable<Exercise7Result> Exercise7_Act1(
             TrainingContext context, string dataCategoryCodes) =>
+            /* translated to SQL
+              SELECT [d].[Name] AS [DataCategoryName], [m0].[Name] AS [MetadataName]
+              FROM [DataCategory] AS [d]
+              LEFT JOIN [MetadataDataCategory] AS [m] ON [d].[Id] = [m].[DataCategoryId]
+              LEFT JOIN [Metadata] AS [m0] ON [m].[MetadataId] = [m0].[Id]
+              WHERE [d].[Code] = @__dataCategoryCodes_0
+             */
             from dataCategory in context.DataCategory
             where dataCategory.Code == dataCategoryCodes
             from metadataDataCategory in dataCategory.MetadataDataCategory.DefaultIfEmpty()

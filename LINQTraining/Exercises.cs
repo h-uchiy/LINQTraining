@@ -328,7 +328,10 @@ namespace LINQTraining
         internal static IEnumerable<Exercise7Result> Exercise7_Act(TrainingContext context, string dataCategoryCode)
         {
             var results = new List<Exercise7Result>();
-            foreach (var dataCategory in context.DataCategory.Where(x => x.Code == dataCategoryCode))
+            var source = context.DataCategory
+                .Include(x => x.MetadataDataCategory)
+                .ThenInclude(x => x.Metadata);
+            foreach (var dataCategory in source.Where(x => x.Code == dataCategoryCode))
             {
                 if (dataCategory.MetadataDataCategory.Any())
                 {

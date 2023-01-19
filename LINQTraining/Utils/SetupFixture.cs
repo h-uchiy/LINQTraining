@@ -106,6 +106,21 @@ namespace LINQTraining.Utils
                 await context.SaveChangesAsync();
             }
 
+            if (!await context.MetadataDataCategory.AnyAsync())
+            {
+                var query = from metadata in context.Metadata
+                    from dataCategory in context.DataCategory
+                    select new MetadataDataCategory()
+                    {
+                        Metadata = metadata, DataCategory = dataCategory
+                    };
+                var metadataDataCategories = query.AsEnumerable()
+                    .Where(x => _random.Next(0, 100) < 10)
+                    .ToList();
+                context.AddRange(metadataDataCategories);
+                await context.SaveChangesAsync();
+            }
+
             await transaction.CommitAsync();
         }
 
@@ -180,7 +195,7 @@ namespace LINQTraining.Utils
 
         public string GetDataCategoryCode()
         {
-            return $"DataCategory{_random.Next(1, 100):D3}";
+            return $"DataCategoryCode{_random.Next(1, 100):D3}";
         }
     }
 }
