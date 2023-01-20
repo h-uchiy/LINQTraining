@@ -53,17 +53,25 @@ namespace LINQTraining
         /// <summary>
         /// DataValues.Metadata.Code == metadataCode となるDataValuesから、DataTypeとValueを取得します。
         /// </summary>
-        internal static List<Exercise1Result> Exercise1_Act(TrainingContext context, string metadataCode) =>
-            context.DataValues
+        private static List<Exercise1Result> Exercise1_Act(
+            TrainingContext context, string metadataCode)
+        {
+            var metadataValues = context.DataValues
                 .Include(x => x.Metadata)
-                .Where(x => x.Metadata.Code == metadataCode)
-                .ToList()
-                .Select(dataValue => new Exercise1Result
+                .Where(x => x.Metadata.Code == metadataCode);
+
+            var result = new List<Exercise1Result>();
+            foreach (var metadataValue in metadataValues.ToList())
+            {
+                result.Add(new Exercise1Result
                 {
-                    DataType = dataValue.Metadata.DataType,
-                    Value = dataValue.Value
-                })
-                .ToList();
+                    DataType = metadataValue.Metadata.DataType,
+                    Value = metadataValue.Value
+                });
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// 演習2
